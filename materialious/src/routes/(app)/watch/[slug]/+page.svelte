@@ -26,7 +26,6 @@
 		interfaceAutoExpandDesc,
 		interfaceLowBandwidthMode,
 		playerAutoplayNextByDefaultStore,
-		playerListenByDefaultStore,
 		playerTheatreModeByDefaultStore,
 		playlistSettingsStore,
 		syncPartyConnectionsStore,
@@ -67,8 +66,6 @@
 
 	let theatreMode = $state(get(playerTheatreModeByDefaultStore));
 
-	let audioMode = $state(get(playerListenByDefaultStore));
-
 	let segments: Segment[] = $state([]);
 
 	let pauseTimerSeconds: number = $state(-1);
@@ -76,6 +73,15 @@
 	let showTranscript = $state(false);
 
 	let playerCurrentTime: number = $state(0);
+
+	$effect(() => {
+		if ($interfaceAutoExpandComments && comments) {
+			const commentSectionElement = document.getElementById('comment-section');
+			if (commentSectionElement) {
+				commentSectionElement.click();
+			}
+		}
+	});
 
 	playlistSettingsStore.subscribe((playlistSetting) => {
 		if (!data.playlistId) return;
@@ -217,6 +223,13 @@
 	});
 
 	onMount(async () => {
+		if ($interfaceAutoExpandDesc) {
+			const descriptionElement = document.getElementById('description');
+			if (descriptionElement) {
+				descriptionElement.click();
+			}
+		}
+
 		if ($syncPartyConnectionsStore) {
 			$syncPartyConnectionsStore.forEach((conn) => {
 				playerSyncEvents(conn);
@@ -407,13 +420,7 @@
 	<div class={`s12 m12 l${theatreMode ? '12' : '9'}`}>
 		<div style="display: flex;justify-content: center;">
 			{#key data.video.videoId}
-				<Player
-					bind:playerElement
-					bind:segments
-					{data}
-					{audioMode}
-					isSyncing={$syncPartyPeerStore !== null}
-				/>
+				<Player bind:playerElement bind:segments {data} isSyncing={$syncPartyPeerStore !== null} />
 			{/key}
 		</div>
 
@@ -493,10 +500,6 @@
 				{/await}
 
 				<div>
-					<button onclick={() => (audioMode = !audioMode)} class:border={!audioMode}>
-						<i>headphones</i>
-						<div class="tooltip">{$_('player.audioOnly')}</div>
-					</button>
 					<button onclick={toggleTheatreMode} class="m l" class:border={!theatreMode}>
 						<i>width_wide</i>
 						<div class="tooltip">{$_('player.theatreMode')}</div>
@@ -540,8 +543,8 @@
 							<div class="tooltip">{$_('player.addToPlaylist')}</div>
 							<menu class="no-wrap mobile">
 								{#each personalPlaylists as personalPlaylist}
-									<a
-										href="#add"
+									<button
+										class="row"
 										onclick={async () => await toggleVideoToPlaylist(personalPlaylist.playlistId)}
 									>
 										<nav>
@@ -554,7 +557,7 @@
 												<i>add</i>
 											{/if}
 										</nav>
-									</a>
+									</button>
 								{/each}
 							</menu>
 						</button>
@@ -575,8 +578,8 @@
 		</div>
 
 		<article>
-			<details open={$interfaceAutoExpandDesc}>
-				<summary class="bold none">
+			<details>
+				<summary id="description" class="bold none">
 					<nav>
 						<div class="max">
 							{numberWithCommas(data.video.viewCount)} views • {data.video.publishedText}
@@ -619,8 +622,8 @@
 
 		{#if comments && comments.comments.length > 0}
 			<article>
-				<details open={$interfaceAutoExpandComments}>
-					<summary class="none bold">
+				<details>
+					<summary id="comment-section" class="none bold">
 						<nav>
 							<div class="max">{numberWithCommas(comments.commentCount)} comments</div>
 							<i>expand_more</i>

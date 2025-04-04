@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import '$lib/css/shaka-player-theme.css';
 	import { getBestThumbnail } from '$lib/images';
 	import { padTime, videoLength } from '$lib/time';
 	import { Capacitor } from '@capacitor/core';
@@ -8,6 +9,8 @@
 	import { NavigationBar } from '@hugotomazi/capacitor-navigation-bar';
 	import { type Page } from '@sveltejs/kit';
 	import { GoogleVideo, Protos } from 'googlevideo';
+	import ISO6391 from 'iso-639-1';
+	import Mousetrap from 'mousetrap';
 	import 'shaka-player/dist/controls.css';
 	import shaka from 'shaka-player/dist/shaka-player.ui';
 	import { SponsorBlock, type Category, type Segment } from 'sponsorblock-api';
@@ -37,7 +40,6 @@
 
 	interface Props {
 		data: { video: VideoPlay; content: PhasedDescription; playlistId: string | null };
-		audioMode?: boolean;
 		isSyncing?: boolean;
 		isEmbed?: boolean;
 		segments?: Segment[];
@@ -46,7 +48,6 @@
 
 	let {
 		data,
-		audioMode = false,
 		isEmbed = false,
 		segments = $bindable([]),
 		playerElement = $bindable()
@@ -59,6 +60,45 @@
 
 	let player: shaka.Player;
 	let shakaUi: shaka.ui.Overlay;
+
+	const STORAGE_KEY_QUALITY = 'shaka-preferred-quality';
+	const STORAGE_KEY_VOLUME = 'shaka-preferred-volume';
+
+	function saveQualityPreference() {
+		const tracks = player.getVariantTracks();
+		const selectedTrack = tracks.find((track) => track.active);
+		if (selectedTrack) {
+			localStorage.setItem(STORAGE_KEY_QUALITY, selectedTrack.bandwidth.toString());
+		}
+	}
+
+	function saveVolumePreference() {
+		localStorage.setItem(STORAGE_KEY_VOLUME, playerElement.volume.toString());
+	}
+
+	function restoreQualityPreference() {
+		const savedQuality =
+			localStorage.getItem(STORAGE_KEY_QUALITY) ??
+			(import.meta.env.VITE_DEFAULT_DASH_BITRATE as string | undefined);
+
+		if (savedQuality) {
+			const qualityBandwidth = parseInt(savedQuality);
+			const tracks = player.getVariantTracks();
+
+			let preferredTrack = tracks.find((track) => track.bandwidth === qualityBandwidth);
+			if (!preferredTrack) {
+				preferredTrack = tracks.reduce((prev, curr) =>
+					Math.abs(curr.bandwidth - qualityBandwidth) < Math.abs(prev.bandwidth - qualityBandwidth)
+						? curr
+						: prev
+				);
+			}
+
+			if (preferredTrack) {
+				player.selectVariantTrack(preferredTrack, true);
+			}
+		}
+	}
 
 	function loadTimeFromUrl(page: Page): boolean {
 		if (player) {
@@ -85,6 +125,12 @@
 		player = new shaka.Player();
 		playerElement = document.getElementById('player') as HTMLMediaElement;
 
+		// Change instantly to stop video from being loud for a second
+		const savedVolume = localStorage.getItem(STORAGE_KEY_VOLUME);
+		if (savedVolume) {
+			playerElement.volume = parseFloat(savedVolume);
+		}
+
 		await player.attach(playerElement);
 		shakaUi = new shaka.ui.Overlay(
 			player,
@@ -95,14 +141,26 @@
 		shakaUi.configure({
 			controlPanelElements: [
 				'play_pause',
+				Capacitor.getPlatform() === 'android' ? '' : 'volume',
 				'spacer',
-				Capacitor.getPlatform() === 'electron' ? 'volume' : '',
 				'chapter',
 				'time_and_duration',
+				'captions',
 				'overflow_menu',
 				'fullscreen'
 			],
-			overflowMenuButtons: ['cast', 'airplay', 'captions', 'quality', 'loop', 'language']
+			overflowMenuButtons: [
+				'cast',
+				'airplay',
+				'captions',
+				'quality',
+				'playback_rate',
+				'loop',
+				'language',
+				Capacitor.getPlatform() === 'android' ? '' : 'save_video_frame',
+				'statistics'
+			],
+			enableTooltips: true
 		});
 
 		player.configure({
@@ -194,56 +252,73 @@
 				};
 
 				if (type == shaka.net.NetworkingEngine.RequestType.SEGMENT) {
-					const googUmp = new GoogleVideo.UMP(
-						new GoogleVideo.ChunkedDataBuffer([new Uint8Array(response.data as ArrayBuffer)])
-					);
+					const url = new URL(response.uri);
 
-					let redirect: Protos.SabrRedirect | undefined;
+					// Fix positioning for auto-generated subtitles
+					if (
+						url.hostname.endsWith('.youtube.com') &&
+						url.pathname === '/api/timedtext' &&
+						url.searchParams.get('caps') === 'asr' &&
+						url.searchParams.get('kind') === 'asr' &&
+						url.searchParams.get('fmt') === 'vtt'
+					) {
+						const stringBody = new TextDecoder().decode(response.data);
+						// position:0% for LTR text and position:100% for RTL text
+						const cleaned = stringBody.replaceAll(/ align:start position:(?:10)?0%$/gm, '');
 
-					googUmp.parse((part) => {
-						try {
-							const data = part.data.chunks[0];
-							switch (part.type) {
-								case 20: {
-									const mediaHeader = Protos.MediaHeader.decode(data);
-									console.info('[MediaHeader]:', mediaHeader);
-									break;
-								}
-								case 21: {
-									handleMediaData(part.data.split(1).remainingBuffer.chunks[0]);
-									break;
-								}
-								case 43: {
-									redirect = Protos.SabrRedirect.decode(data);
-									console.info('[SABRRedirect]:', redirect);
-									break;
-								}
-								case 58: {
-									const streamProtectionStatus = Protos.StreamProtectionStatus.decode(data);
-									switch (streamProtectionStatus.status) {
-										case 1:
-											console.info('[StreamProtectionStatus]: Ok');
-											break;
-										case 2:
-											console.error('[StreamProtectionStatus]: Attestation pending');
-											break;
-										case 3:
-											console.error('[StreamProtectionStatus]: Attestation required');
-											break;
-										default:
-											break;
+						response.data = new TextEncoder().encode(cleaned).buffer as ArrayBuffer;
+					} else {
+						const googUmp = new GoogleVideo.UMP(
+							new GoogleVideo.ChunkedDataBuffer([new Uint8Array(response.data as ArrayBuffer)])
+						);
+
+						let redirect: Protos.SabrRedirect | undefined;
+
+						googUmp.parse((part) => {
+							try {
+								const data = part.data.chunks[0];
+								switch (part.type) {
+									case 20: {
+										const mediaHeader = Protos.MediaHeader.decode(data);
+										console.info('[MediaHeader]:', mediaHeader);
+										break;
 									}
-									break;
+									case 21: {
+										handleMediaData(part.data.split(1).remainingBuffer.chunks[0]);
+										break;
+									}
+									case 43: {
+										redirect = Protos.SabrRedirect.decode(data);
+										console.info('[SABRRedirect]:', redirect);
+										break;
+									}
+									case 58: {
+										const streamProtectionStatus = Protos.StreamProtectionStatus.decode(data);
+										switch (streamProtectionStatus.status) {
+											case 1:
+												console.info('[StreamProtectionStatus]: Ok');
+												break;
+											case 2:
+												console.error('[StreamProtectionStatus]: Attestation pending');
+												break;
+											case 3:
+												console.error('[StreamProtectionStatus]: Attestation required');
+												break;
+											default:
+												break;
+										}
+										break;
+									}
 								}
+							} catch (error) {
+								console.error('An error occurred while processing the part:', error);
 							}
-						} catch (error) {
-							console.error('An error occurred while processing the part:', error);
-						}
-					});
+						});
 
-					if (redirect) return handleRedirect(redirect);
+						if (redirect) return handleRedirect(redirect);
 
-					if (mediaData.length) response.data = mediaData;
+						if (mediaData.length) response.data = mediaData;
+					}
 				}
 			});
 		}
@@ -335,14 +410,6 @@
 
 			await loadPlayerPos();
 
-			const defaultLanguage = get(playerDefaultLanguage);
-			if (defaultLanguage) {
-				const audioLanguages = player.getAudioLanguages();
-				if (audioLanguages.includes(defaultLanguage)) {
-					player.selectAudioLanguage(defaultLanguage);
-				}
-			}
-
 			if (Capacitor.getPlatform() === 'android' && data.video.adaptiveFormats.length > 0) {
 				const videoFormats = data.video.adaptiveFormats.filter((format) =>
 					format.type.startsWith('video/')
@@ -398,6 +465,91 @@
 			snackBarAlert = get(_)('player.youtubeJsFallBack');
 			ui('#snackbar-alert');
 		}
+
+		player.addEventListener('buffering', saveQualityPreference);
+		playerElement.addEventListener('volumechange', saveVolumePreference);
+
+		player.addEventListener('loaded', () => {
+			restoreQualityPreference();
+
+			const defaultLanguage = get(playerDefaultLanguage);
+			if (defaultLanguage) {
+				const audioLanguages = player.getAudioLanguages();
+				const langCode = ISO6391.getCode(defaultLanguage);
+
+				for (const audioLanguage of audioLanguages) {
+					if (audioLanguage.startsWith(langCode)) {
+						player.selectAudioLanguage(audioLanguage);
+						break;
+					}
+				}
+			}
+		});
+
+		const overflowMenuButton = document.querySelector('.shaka-overflow-menu-button');
+		if (overflowMenuButton) {
+			overflowMenuButton.innerHTML = 'settings';
+		}
+
+		const backToOverflowButton = document.querySelector('.shaka-back-to-overflow-button');
+		if (backToOverflowButton) {
+			backToOverflowButton.innerHTML = 'arrow_back_ios_new';
+		}
+
+		Mousetrap.bind('space', () => {
+			if (playerElement.paused) {
+				playerElement.play();
+			} else {
+				playerElement.pause();
+			}
+			return false;
+		});
+
+		Mousetrap.bind('right', () => {
+			playerElement.currentTime = playerElement.currentTime + 10;
+			return false;
+		});
+
+		Mousetrap.bind('left', () => {
+			playerElement.currentTime = playerElement.currentTime - 10;
+			return false;
+		});
+
+		Mousetrap.bind('c', () => {
+			const isVisible = player.isTextTrackVisible();
+			if (isVisible) {
+				player.setTextTrackVisibility(false);
+			} else {
+				const defaultLanguage = get(playerDefaultLanguage);
+				const langCode = ISO6391.getCode(defaultLanguage);
+
+				const tracks = player.getTextTracks();
+				const subtitleTrack = tracks.find((track) => track.language === langCode);
+
+				if (subtitleTrack) {
+					player.selectTextTrack(subtitleTrack);
+					player.setTextTrackVisibility(true);
+				}
+			}
+			return false;
+		});
+
+		Mousetrap.bind('f', () => {
+			if (document.fullscreenElement) {
+				document.exitFullscreen();
+			} else {
+				playerElement.requestFullscreen();
+			}
+			return false;
+		});
+
+		Mousetrap.bind('shift+left', () => {
+			playerElement.playbackRate = playerElement.playbackRate - 0.25;
+		});
+
+		Mousetrap.bind('shift+right', () => {
+			playerElement.playbackRate = playerElement.playbackRate + 0.25;
+		});
 	});
 
 	async function loadPlayerPos() {
@@ -476,12 +628,9 @@
 	});
 </script>
 
-{#if audioMode}
-	<div style="margin-top: 40vh;"></div>
-{/if}
-
 <div
 	id="shaka-container"
+	class="youtube-theme"
 	style="max-height: 80vh; max-width: calc(80vh * 16 / 9); overflow: hidden; position: relative; flex: 1; background-color: black;"
 	data-shaka-player-container
 >
