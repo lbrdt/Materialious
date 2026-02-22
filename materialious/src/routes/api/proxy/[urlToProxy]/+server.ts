@@ -149,10 +149,9 @@ async function proxyRequest(
 	responseHeaders.delete('content-encoding');
 	responseHeaders.delete('access-control-allow-origin');
 	responseHeaders.delete('timing-allow-origin');
+	responseHeaders.delete('content-length');
 
-	if (!responseHeaders.has('content-length')) {
-		responseHeaders.set('transfer-encoding', 'chunked');
-	}
+	responseHeaders.set('transfer-encoding', 'chunked');
 
 	return new Response(response.body, {
 		status: response.status,
