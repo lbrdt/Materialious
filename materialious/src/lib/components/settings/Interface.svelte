@@ -234,7 +234,6 @@
 			onInput={setColor}
 			position="responsive"
 			isAlpha={false}
-			hex={$themeColorStore}
 			sliderDirection="horizontal"
 		/>
 	</div>
