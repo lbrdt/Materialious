@@ -321,3 +321,14 @@ export type ChannelOptions = {
 	continuation?: string;
 	sortBy?: ChannelSortBy;
 };
+
+export interface WatchHistoryItem {
+	author: string;
+	watched: Date;
+	duration: number;
+	progress: number;
+	id: string;
+	title: string;
+	thumbnail: string;
+	videoId: string;
+}

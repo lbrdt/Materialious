@@ -20,6 +20,7 @@
 		syncPartyPeerStore
 	} from '$lib/store';
 	import { relativeTimestamp } from '$lib/time';
+	import { queueGetWatchHistory } from '$lib/api/backend/historyPool';
 
 	interface Props {
 		video: VideoBase | Video | Notification | PlaylistPageVideo;
@@ -70,6 +71,12 @@
 		addEventListener('resize', () => {
 			disableSideways();
 			calcThumbnailPlaceholderHeight();
+		});
+
+		queueGetWatchHistory(video.videoId).then((watchHistory) => {
+			if (watchHistory) {
+				progress = watchHistory.progress.toString();
+			}
 		});
 
 		if (get(interfaceLowBandwidthMode)) return;

@@ -4,9 +4,10 @@ import z from 'zod';
 import { Op } from 'sequelize';
 
 const zUserHistory = z.object({
-	id: z.string(),
+	id: z.string().max(255),
 	watched: z.coerce.date(),
-	progress: z.number(),
+	progress: z.number().max(115200),
+	duration: z.number().max(115200),
 	title: z.object({
 		cipher: z.string().max(255),
 		nonce: z.string().max(255)
@@ -16,10 +17,10 @@ const zUserHistory = z.object({
 		nonce: z.string().max(255)
 	}),
 	thumbnail: z.object({
-		cipher: z.string().max(255),
+		cipher: z.string().max(1000),
 		nonce: z.string().max(255)
 	}),
-	duration: z.object({
+	videoId: z.object({
 		cipher: z.string().max(255),
 		nonce: z.string().max(255)
 	})
@@ -42,14 +43,15 @@ export async function POST({ locals, request }) {
 	const toStore = {
 		progress: data.data.progress,
 		watched: data.data.watched,
+		duration: data.data.duration,
 		titleCipher: data.data.title.cipher,
 		titleNonce: data.data.title.nonce,
 		authorCipher: data.data.author.cipher,
 		authorNonce: data.data.author.nonce,
 		thumbnailCipher: data.data.thumbnail.cipher,
 		thumbnailNonce: data.data.thumbnail.nonce,
-		durationCipher: data.data.duration.cipher,
-		durationNonce: data.data.duration.nonce
+		videoIdCipher: data.data.videoId.cipher,
+		videoIdNonce: data.data.videoId.nonce
 	};
 
 	if (history) {
@@ -78,18 +80,20 @@ export async function GET({ locals, url }) {
 		videoHashesList = videoHashes.split(',');
 	}
 
+	console.log(videoHashesList);
+
 	const whereClause: any = {
 		UserId: locals.userId
 	};
 
 	if (videoHashesList.length > 0) {
-		whereClause[Op.or] = [{ id: { [Op.in]: videoHashesList } }];
+		whereClause.id = { [Op.in]: videoHashesList };
 	}
 
 	const history = await getSequelize().UserHistoryTable.findAll({
 		where: whereClause,
 		limit,
-		offset: limit * page
+		offset: page > 0 ? limit * page : undefined
 	});
 
 	return json(history);

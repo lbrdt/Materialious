@@ -1,6 +1,6 @@
 import sodium from 'libsodium-wrappers-sumo';
-import { encryptWithMasterKey, getRawKey, getSecureHash } from './encryption';
-import type { VideoPlay } from '../model';
+import { decryptWithMasterKey, encryptWithMasterKey, getRawKey, getSecureHash } from './encryption';
+import type { VideoPlay, WatchHistoryItem } from '../model';
 import { getBestThumbnail } from '$lib/images';
 
 export async function updateWatchHistory(videoId: string, progress: number) {
@@ -20,6 +20,85 @@ export async function updateWatchHistory(videoId: string, progress: number) {
 	});
 }
 
+async function decryptWatchHistory(
+	history: Record<string, string | number>
+): Promise<WatchHistoryItem> {
+	const author = (await decryptWithMasterKey(
+		history.authorNonce as string,
+		history.authorCipher as string
+	)) as string;
+	const title = (await decryptWithMasterKey(
+		history.titleNonce as string,
+		history.titleCipher as string
+	)) as string;
+	const thumbnail = (await decryptWithMasterKey(
+		history.thumbnailNonce as string,
+		history.thumbnailCipher as string
+	)) as string;
+	const videoId = (await decryptWithMasterKey(
+		history.videoIdNonce as string,
+		history.videoIdCipher as string
+	)) as string;
+
+	return {
+		author,
+		title,
+		thumbnail,
+		videoId,
+		watched: new Date(history.watched),
+		duration: history.duration as number,
+		id: history.id as string,
+		progress: history.progress as number
+	};
+}
+
+export async function getVideoWatchHistory(videoId: string): Promise<WatchHistoryItem | undefined> {
+	await sodium.ready;
+	const rawKey = await getRawKey();
+	if (!rawKey) return;
+
+	const videoHash = await getSecureHash(videoId, rawKey);
+
+	const resp = await fetch(`/api/user/history/${videoHash}`, {
+		method: 'GET',
+		credentials: 'same-origin'
+	});
+
+	if (!resp.ok) return;
+
+	return await decryptWatchHistory(await resp.json());
+}
+
+export async function getWatchHistory(
+	options: { page?: number; videoIds?: string[] } = { page: 0, videoIds: undefined }
+): Promise<WatchHistoryItem[]> {
+	await sodium.ready;
+	const rawKey = await getRawKey();
+	if (!rawKey) return [];
+
+	const videoHashes: string[] = [];
+	if (options.videoIds) {
+		for (const videoId of options.videoIds) {
+			videoHashes.push(await getSecureHash(videoId, rawKey));
+		}
+	}
+
+	const resp = await fetch(
+		`/api/user/history?page=${options.page}${videoHashes.length > 0 ? '&videoHashes=' + videoHashes.join(',') : ''}`
+	);
+	if (!resp.ok) return [];
+
+	const rawHistory = await resp.json();
+
+	const history: WatchHistoryItem[] = [];
+
+	for (const item of rawHistory) {
+		history.push(await decryptWatchHistory(item));
+	}
+
+	return history;
+}
+
 export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {
 	await sodium.ready;
 	const rawKey = await getRawKey();
@@ -30,7 +109,7 @@ export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {
 	const title = await encryptWithMasterKey(video.title);
 	const author = await encryptWithMasterKey(video.author);
 	const thumbnail = await encryptWithMasterKey(getBestThumbnail(video.videoThumbnails));
-	const duration = await encryptWithMasterKey(video.lengthSeconds.toString());
+	const videoId = await encryptWithMasterKey(video.videoId);
 
 	await fetch('/api/user/history', {
 		method: 'POST',
@@ -51,10 +130,11 @@ export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {
 				cipher: thumbnail?.cipher,
 				nonce: thumbnail?.nonce
 			},
-			duration: {
-				cipher: duration?.cipher,
-				nonce: duration?.nonce
-			}
+			videoId: {
+				cipher: videoId?.cipher,
+				nonce: videoId?.nonce
+			},
+			duration: video.lengthSeconds
 		})
 	});
 }

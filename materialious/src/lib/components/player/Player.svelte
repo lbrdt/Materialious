@@ -62,6 +62,7 @@
 	import { Network, type ConnectionStatus } from '@capacitor/network';
 	import { ScreenOrientation, type ScreenOrientationResult } from '@capacitor/screen-orientation';
 	import ClosedCaptions from './ClosedCaptions.svelte';
+	import { getVideoWatchHistory, updateWatchHistory } from '$lib/api/backend/history';
 
 	interface Props {
 		data: { video: VideoPlay; content: ParsedDescription; playlistId: string | null };
@@ -750,6 +751,9 @@
 			// Continue regardless of error
 		}
 
+		const watchHistory = await getVideoWatchHistory(data.video.videoId);
+		if (watchHistory && watchHistory.progress > toSetTime) toSetTime = watchHistory.progress;
+
 		return toSetTime;
 	}
 
@@ -769,6 +773,8 @@
 				// Continue regardless of error
 			}
 		}
+
+		updateWatchHistory(data.video.videoId, playerElement.currentTime);
 	}
 
 	onDestroy(async () => {

@@ -120,8 +120,20 @@ export function getSequelize(): {
 			type: DataTypes.DATE,
 			allowNull: false
 		},
+		duration: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		},
 		progress: {
 			type: DataTypes.INTEGER,
+			allowNull: false
+		},
+		videoIdCipher: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		videoIdNonce: {
+			type: DataTypes.STRING,
 			allowNull: false
 		},
 		titleCipher: {
@@ -145,14 +157,6 @@ export function getSequelize(): {
 			allowNull: false
 		},
 		thumbnailNonce: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
-		durationCipher: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
-		durationNonce: {
 			type: DataTypes.STRING,
 			allowNull: false
 		}
