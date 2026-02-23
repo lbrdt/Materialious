@@ -263,7 +263,24 @@ export async function getKeyValue(key: string): Promise<KeyValue | null> {
 	return (await decryptWithMasterKey(respJson.valueNonce, respJson.valueCipher)) ?? null;
 }
 
-export async function saveHistoryToBackend(video: VideoPlay, progress: number = 0) {
+export async function updateWatchHistory(videoId: string, progress: number) {
+	await sodium.ready;
+	const rawKey = await getRawKey();
+	if (!rawKey) return;
+
+	const videoHash = await getSecureHash(videoId, rawKey);
+
+	await fetch(`/api/user/history/${videoHash}`, {
+		method: 'POST',
+		credentials: 'same-origin',
+		body: JSON.stringify({
+			watched: new Date(),
+			progress
+		})
+	});
+}
+
+export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {
 	await sodium.ready;
 	const rawKey = await getRawKey();
 	if (!rawKey) return;
@@ -277,6 +294,7 @@ export async function saveHistoryToBackend(video: VideoPlay, progress: number = 
 
 	await fetch('/api/user/history', {
 		method: 'POST',
+		credentials: 'same-origin',
 		body: JSON.stringify({
 			id: videoHash,
 			watched: new Date(),

@@ -19,7 +19,7 @@ import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { _ } from './i18n';
 import { isOwnBackend } from './shared';
-import { saveHistoryToBackend } from './api/backend';
+import { saveWatchHistory } from './api/backend';
 
 export async function getWatchDetails(videoId: string, url: URL) {
 	const playerStateRetrieved = get(playerState);
@@ -49,7 +49,7 @@ export async function getWatchDetails(videoId: string, url: URL) {
 	}
 
 	if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
-		saveHistoryToBackend(video);
+		saveWatchHistory(video);
 	}
 
 	let comments;
