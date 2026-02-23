@@ -11,18 +11,14 @@
 	import { createVideoUrl, insecureRequestImageHandler } from '$lib/misc';
 	import type { PlayerEvents } from '$lib/player';
 	import {
-		invidiousAuthStore,
 		deArrowEnabledStore,
 		interfaceLowBandwidthMode,
 		isAndroidTvStore,
 		playerSavePlaybackPositionStore,
 		playerState,
 		syncPartyConnectionsStore,
-		syncPartyPeerStore,
-		synciousInstanceStore,
-		synciousStore
+		syncPartyPeerStore
 	} from '$lib/store';
-	import { queueGetWatchProgress } from '$lib/api/apiExtended';
 	import { relativeTimestamp } from '$lib/time';
 
 	interface Props {
@@ -107,14 +103,6 @@
 		img.onload = () => {
 			thumbnail = img;
 		};
-
-		if (get(synciousStore) && get(synciousInstanceStore) && get(invidiousAuthStore)) {
-			try {
-				progress = (await queueGetWatchProgress(video.videoId))?.time?.toString() ?? undefined;
-			} catch {
-				// Continue regardless of error
-			}
-		}
 	});
 
 	onDestroy(() => {

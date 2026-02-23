@@ -30,8 +30,6 @@ import {
 	sponsorBlockDisplayToastStore,
 	sponsorBlockStore,
 	sponsorBlockUrlStore,
-	synciousInstanceStore,
-	synciousStore,
 	themeColorStore,
 	interfaceAutoExpandChapters,
 	playerDefaultPlaybackSpeed,
@@ -161,16 +159,6 @@ export const persistedStores: PersistedStore<any>[] = [
 	{
 		name: 'deArrowThumbnailInstance',
 		store: deArrowThumbnailInstanceStore,
-		schema: zString
-	},
-	{
-		name: 'syncious',
-		store: synciousStore,
-		schema: zBoolean
-	},
-	{
-		name: 'synciousInstance',
-		store: synciousInstanceStore,
 		schema: zString
 	},
 	{

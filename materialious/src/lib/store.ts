@@ -203,18 +203,6 @@ export const returnYTDislikesInstanceStore: Writable<string | null | undefined> 
 	'returnYTDislikesInstance'
 );
 
-export const synciousStore = persist(writable(false), createStorage(), 'syncious');
-export const synciousInstanceStore: Writable<string | null | undefined> = persist(
-	writable(
-		ifNotWebDefault(
-			getPublicEnv('DEFAULT_SYNCIOUS_INSTANCE') || getPublicEnv('DEFAULT_API_EXTENDED_INSTANCE'),
-			'https://extended-api.materialio.us'
-		)
-	),
-	createStorage(),
-	'synciousInstance'
-);
-
 export const interfaceRegionStore: Writable<string> = persist(
 	writable('US'),
 	createStorage(),
