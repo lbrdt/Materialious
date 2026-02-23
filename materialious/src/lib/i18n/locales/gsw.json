@@ -95,7 +95,14 @@
         "about": "Über",
         "androidNativeShare": "Nativs Teile bruche",
         "shareURL": "URL teile",
-        "joinSyncParty": "Synchronistationsgruppe-URL iigeh"
+        "joinSyncParty": "Synchronistationsgruppe-URL iigeh",
+        "engine": "Backend-Engine",
+        "materialiousAccount": "Konto",
+        "deleteAccount": "Konto lösche",
+        "clickXmoreTimesToDelete": "Klick {{clicksTillDelete}} wiiteri Mal zum Lösche",
+        "backendEngine": {
+            "warning": "Erwiterti Iistellige! Nur für erfahreni Nutzer. Ändere sie nöd, usser du weisch, was du machsch."
+        }
     },
     "videos": "Videos",
     "cancel": "Abbreche",
@@ -169,7 +176,8 @@
             "youtubeLink": "YouTube-Link kopiere",
             "invidiousRedirect": "Invidious-Wiiterleitigslink kopiere",
             "includeTimestamp": "Mit Ziitstempel",
-            "copiedSuccess": "I d Zwüscheablaag kopiert"
+            "copiedSuccess": "I d Zwüscheablaag kopiert",
+            "copyXLink": "{{linkType}}-Link kopiere"
         },
         "download": "Abelade",
         "downloadSteps": {
@@ -249,6 +257,9 @@
         "no": "Nei",
         "unsure": "Unsicher",
         "required": "Iirichtig erforderlich",
-        "invidiousInfo": "Invidious isch e selbständig hostbari YouTube-Benutzeroberflächi."
+        "invidiousInfo": "Invidious isch e selbständig hostbari YouTube-Benutzeroberflächi.",
+        "localFallbackInfo": "Wenn s Lade vomene Video vo Invidious fehlschlaat, ladet Materialious es lokal.",
+        "configureInstance": "Instanz konfiguriere",
+        "done": "Fertig"
     }
 }
