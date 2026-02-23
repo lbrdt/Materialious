@@ -451,25 +451,25 @@
 							},
 							{
 								type: 'invidious',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							},
 							{
 								type: 'invidious redirect',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							},
 							{
 								type: 'youtube',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							}
