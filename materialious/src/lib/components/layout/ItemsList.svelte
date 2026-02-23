@@ -249,7 +249,7 @@
 						}
 					}}
 				>
-					{#if item.type === 'video' || item.type === 'shortVideo' || item.type === 'stream'}
+					{#if item.type === 'video' || item.type === 'shortVideo' || item.type === 'stream' || item.type === 'historyVideo'}
 						{#key item.videoId}
 							<Thumbnail video={item} {playlistId} />
 						{/key}

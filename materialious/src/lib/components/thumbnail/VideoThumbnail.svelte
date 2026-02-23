@@ -7,7 +7,13 @@
 	import { _ } from '$lib/i18n';
 	import { get } from 'svelte/store';
 	import { getDeArrow, getThumbnail } from '$lib/api';
-	import type { Notification, PlaylistPageVideo, Video, VideoBase } from '$lib/api/model';
+	import type {
+		Notification,
+		PlaylistPageVideo,
+		Video,
+		VideoBase,
+		VideoWatchHistory
+	} from '$lib/api/model';
 	import { createVideoUrl, insecureRequestImageHandler } from '$lib/misc';
 	import type { PlayerEvents } from '$lib/player';
 	import {
@@ -21,9 +27,10 @@
 	} from '$lib/store';
 	import { relativeTimestamp } from '$lib/time';
 	import { queueGetWatchHistory } from '$lib/api/backend/historyPool';
+	import { page } from '$app/state';
 
 	interface Props {
-		video: VideoBase | Video | Notification | PlaylistPageVideo;
+		video: VideoBase | Video | Notification | PlaylistPageVideo | VideoWatchHistory;
 		playlistId?: string;
 		sideways?: boolean;
 	}
@@ -81,7 +88,8 @@
 
 		if (get(interfaceLowBandwidthMode)) return;
 
-		let imageSrc = getBestThumbnail(video.videoThumbnails) as string;
+		let imageSrc =
+			'thumbnail' in video ? video.thumbnail : (getBestThumbnail(video.videoThumbnails) as string);
 
 		if (get(deArrowEnabledStore)) {
 			try {
@@ -168,13 +176,32 @@
 			onclick={onVideoSelected}
 		>
 			{#if !$interfaceLowBandwidthMode}
-				{#if !thumbnail}
-					<div class="secondary-container" style="width: 100%;height: {placeholderHeight}px;"></div>
-				{:else}
-					<div class:crop={thumbnail.height > 300}>
-						<img class="responsive" loading="lazy" src={thumbnail.src} alt="Thumbnail for video" />
-					</div>
-				{/if}
+				{@const beenWatched = progress && !page.url.pathname.endsWith('/history')}
+
+				<div class="thumbnail-image">
+					{#if !thumbnail}
+						<div
+							class="secondary-container"
+							style="width: 100%;height: {placeholderHeight}px;"
+						></div>
+					{:else}
+						<div class:crop={thumbnail.height > 300}>
+							<img
+								class="responsive"
+								class:watched={beenWatched}
+								loading="lazy"
+								src={thumbnail.src}
+								alt="Thumbnail for video"
+							/>
+						</div>
+					{/if}
+
+					{#if beenWatched}
+						<div class="chip surface-container-highest">
+							<i>check</i>
+						</div>
+					{/if}
+				</div>
 			{/if}
 			{#if progress}
 				<progress
@@ -220,7 +247,7 @@
 			</a>
 
 			<div>
-				{#if video.authorId}
+				{#if 'authorId' in video && video.authorId}
 					<a
 						tabindex="-1"
 						class:author={!sideways}
@@ -232,7 +259,7 @@
 					<p>{video.author}</p>
 				{/if}
 
-				{#if video.promotedBy === 'favourited'}
+				{#if 'promotedBy' in video && video.promotedBy === 'favourited'}
 					<i>star</i>
 				{/if}
 
@@ -324,6 +351,20 @@
 		justify-content: start;
 		padding: 0 1em 1em 1em;
 		line-height: 1.5;
+	}
+
+	.thumbnail-image {
+		position: relative;
+	}
+
+	.thumbnail-image .chip {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+	}
+
+	.watched {
+		filter: brightness(40%);
 	}
 
 	@media screen and (max-width: 1499px) {

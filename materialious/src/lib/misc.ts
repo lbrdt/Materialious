@@ -24,7 +24,8 @@ import type {
 	PlaylistPage,
 	PlaylistPageVideo,
 	Video,
-	VideoBase
+	VideoBase,
+	VideoWatchHistory
 } from './api/model';
 import { page } from '$app/state';
 import { Capacitor } from '@capacitor/core';
@@ -155,7 +156,8 @@ export type feedItem =
 	| Video
 	| Playlist
 	| HashTag
-	| PlaylistPage;
+	| PlaylistPage
+	| VideoWatchHistory;
 export type feedItems = feedItem[];
 
 export function extractUniqueId(item: feedItem): string {

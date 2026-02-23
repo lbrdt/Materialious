@@ -7,7 +7,7 @@ const zUserHistory = z.object({
 	id: z.string().max(255),
 	watched: z.coerce.date(),
 	progress: z.number().max(115200),
-	duration: z.number().max(115200),
+	lengthSeconds: z.number().max(115200),
 	title: z.object({
 		cipher: z.string().max(255),
 		nonce: z.string().max(255)
@@ -43,7 +43,7 @@ export async function POST({ locals, request }) {
 	const toStore = {
 		progress: data.data.progress,
 		watched: data.data.watched,
-		duration: data.data.duration,
+		lengthSeconds: data.data.lengthSeconds,
 		titleCipher: data.data.title.cipher,
 		titleNonce: data.data.title.nonce,
 		authorCipher: data.data.author.cipher,
@@ -64,6 +64,18 @@ export async function POST({ locals, request }) {
 		});
 	}
 
+	// Cull any history older then 3 months.
+	const threeMonthsAgo = new Date();
+	threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+	await getSequelize().UserHistoryTable.destroy({
+		where: {
+			UserId: locals.userId,
+			watched: {
+				[Op.lt]: threeMonthsAgo
+			}
+		}
+	});
+
 	return new Response();
 }
 
@@ -80,8 +92,6 @@ export async function GET({ locals, url }) {
 		videoHashesList = videoHashes.split(',');
 	}
 
-	console.log(videoHashesList);
-
 	const whereClause: any = {
 		UserId: locals.userId
 	};
@@ -93,7 +103,8 @@ export async function GET({ locals, url }) {
 	const history = await getSequelize().UserHistoryTable.findAll({
 		where: whereClause,
 		limit,
-		offset: page > 0 ? limit * page : undefined
+		offset: page > 0 ? limit * page : undefined,
+		order: [['watched', 'DESC']]
 	});
 
 	return json(history);

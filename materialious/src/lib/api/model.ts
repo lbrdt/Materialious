@@ -322,13 +322,14 @@ export type ChannelOptions = {
 	sortBy?: ChannelSortBy;
 };
 
-export interface WatchHistoryItem {
+export interface VideoWatchHistory {
 	author: string;
 	watched: Date;
-	duration: number;
+	lengthSeconds: number;
 	progress: number;
 	id: string;
 	title: string;
 	thumbnail: string;
 	videoId: string;
+	type: 'historyVideo';
 }

@@ -120,7 +120,7 @@ export function getSequelize(): {
 			type: DataTypes.DATE,
 			allowNull: false
 		},
-		duration: {
+		lengthSeconds: {
 			type: DataTypes.INTEGER,
 			allowNull: false
 		},

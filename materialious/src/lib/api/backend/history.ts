@@ -1,6 +1,6 @@
 import sodium from 'libsodium-wrappers-sumo';
 import { decryptWithMasterKey, encryptWithMasterKey, getRawKey, getSecureHash } from './encryption';
-import type { VideoPlay, WatchHistoryItem } from '../model';
+import type { VideoPlay, VideoWatchHistory } from '../model';
 import { getBestThumbnail } from '$lib/images';
 
 export async function updateWatchHistory(videoId: string, progress: number) {
@@ -22,7 +22,7 @@ export async function updateWatchHistory(videoId: string, progress: number) {
 
 async function decryptWatchHistory(
 	history: Record<string, string | number>
-): Promise<WatchHistoryItem> {
+): Promise<VideoWatchHistory> {
 	const author = (await decryptWithMasterKey(
 		history.authorNonce as string,
 		history.authorCipher as string
@@ -46,13 +46,16 @@ async function decryptWatchHistory(
 		thumbnail,
 		videoId,
 		watched: new Date(history.watched),
-		duration: history.duration as number,
+		lengthSeconds: history.lengthSeconds as number,
 		id: history.id as string,
-		progress: history.progress as number
+		progress: history.progress as number,
+		type: 'historyVideo'
 	};
 }
 
-export async function getVideoWatchHistory(videoId: string): Promise<WatchHistoryItem | undefined> {
+export async function getVideoWatchHistory(
+	videoId: string
+): Promise<VideoWatchHistory | undefined> {
 	await sodium.ready;
 	const rawKey = await getRawKey();
 	if (!rawKey) return;
@@ -71,7 +74,7 @@ export async function getVideoWatchHistory(videoId: string): Promise<WatchHistor
 
 export async function getWatchHistory(
 	options: { page?: number; videoIds?: string[] } = { page: 0, videoIds: undefined }
-): Promise<WatchHistoryItem[]> {
+): Promise<VideoWatchHistory[]> {
 	await sodium.ready;
 	const rawKey = await getRawKey();
 	if (!rawKey) return [];
@@ -90,7 +93,7 @@ export async function getWatchHistory(
 
 	const rawHistory = await resp.json();
 
-	const history: WatchHistoryItem[] = [];
+	const history: VideoWatchHistory[] = [];
 
 	for (const item of rawHistory) {
 		history.push(await decryptWatchHistory(item));
@@ -134,7 +137,7 @@ export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {
 				cipher: videoId?.cipher,
 				nonce: videoId?.nonce
 			},
-			duration: video.lengthSeconds
+			lengthSeconds: video.lengthSeconds
 		})
 	});
 }
