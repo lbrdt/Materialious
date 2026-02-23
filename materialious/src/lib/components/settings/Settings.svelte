@@ -244,5 +244,10 @@
 		.settings {
 			height: 100%;
 		}
+
+		#tab-menu {
+			height: fit-content !important;
+			max-height: fit-content !important;
+		}
 	}
 </style>
