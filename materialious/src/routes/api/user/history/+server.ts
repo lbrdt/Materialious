@@ -1,0 +1,106 @@
+import { getSequelize } from '$lib/server/database.js';
+import { error, json } from '@sveltejs/kit';
+import z from 'zod';
+import { Op } from 'sequelize';
+
+const zUserHistory = z.object({
+	id: z.string(),
+	watched: z.coerce.date(),
+	progress: z.number(),
+	title: z.object({
+		cipher: z.string().max(255),
+		nonce: z.string().max(255)
+	}),
+	author: z.object({
+		cipher: z.string().max(255),
+		nonce: z.string().max(255)
+	}),
+	thumbnail: z.object({
+		cipher: z.string().max(255),
+		nonce: z.string().max(255)
+	}),
+	duration: z.object({
+		cipher: z.string().max(255),
+		nonce: z.string().max(255)
+	})
+});
+
+export async function POST({ locals, request }) {
+	if (!locals.userId) throw error(401, 'Unauthorized');
+
+	const data = zUserHistory.safeParse(await request.json());
+
+	if (!data.success) throw error(400, data.error.message);
+
+	const history = await getSequelize().UserHistoryTable.findOne({
+		where: {
+			UserId: locals.userId,
+			id: data.data.id
+		}
+	});
+
+	const toStore = {
+		progress: data.data.progress,
+		watched: data.data.watched,
+		titleCipher: data.data.title.cipher,
+		titleNonce: data.data.title.nonce,
+		authorCipher: data.data.author.cipher,
+		authorNonce: data.data.author.nonce,
+		thumbnailCipher: data.data.thumbnail.cipher,
+		thumbnailNonce: data.data.thumbnail.nonce,
+		durationCipher: data.data.duration.cipher,
+		durationNonce: data.data.duration.nonce
+	};
+
+	if (history) {
+		await history.update(toStore);
+	} else {
+		await getSequelize().UserHistoryTable.create({
+			UserId: locals.userId,
+			id: data.data.id,
+			...toStore
+		});
+	}
+
+	return new Response();
+}
+
+export async function GET({ locals, url }) {
+	if (!locals.userId) throw error(401, 'Unauthorized');
+
+	const limit = 100;
+	const page = Number(url.searchParams.get('page') ?? 0);
+
+	const videoHashes = url.searchParams.get('videoHashes');
+	let videoHashesList: string[] = [];
+
+	if (videoHashes) {
+		videoHashesList = videoHashes.split(',');
+	}
+
+	const whereClause: any = {
+		UserId: locals.userId
+	};
+
+	if (videoHashesList.length > 0) {
+		whereClause[Op.or] = [{ id: { [Op.in]: videoHashesList } }];
+	}
+
+	const history = await getSequelize().UserHistoryTable.findAll({
+		where: whereClause,
+		limit,
+		offset: limit * page
+	});
+
+	return json(history);
+}
+
+export async function DELETE({ locals }) {
+	await getSequelize().UserHistoryTable.destroy({
+		where: {
+			UserId: locals.userId
+		}
+	});
+
+	return new Response();
+}

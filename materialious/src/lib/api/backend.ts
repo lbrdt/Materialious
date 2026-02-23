@@ -4,11 +4,14 @@ import { get } from 'svelte/store';
 import { parseChannelRSS } from './youtubejs/subscriptions';
 import { getChannelYTjs } from './youtubejs/channel';
 import type { ChannelSubscriptions } from '$lib/dexie';
+import type { VideoPlay } from './model';
+import { vi } from 'zod/v4/locales';
+import { getBestThumbnail } from '$lib/images';
 
-async function getInternalAuthorId(authorId: string, rawKey: Uint8Array): Promise<string> {
+async function getSecureHash(toHash: string, rawKey: Uint8Array): Promise<string> {
 	await sodium.ready;
 	return sodium.to_base64(
-		sodium.crypto_generichash(sodium.crypto_generichash_BYTES, authorId, rawKey)
+		sodium.crypto_generichash(sodium.crypto_generichash_BYTES, toHash, rawKey)
 	);
 }
 
@@ -48,7 +51,7 @@ export async function updateRSSLastUpdated(authorId: string) {
 	const rawKey = await getRawKey();
 	if (!rawKey) return false;
 
-	const internalAuthorId = await getInternalAuthorId(authorId, rawKey);
+	const internalAuthorId = await getSecureHash(authorId, rawKey);
 
 	await fetch(`/api/user/subscriptions/${internalAuthorId}`, {
 		method: 'PATCH',
@@ -60,7 +63,7 @@ export async function amSubscribedBackend(authorId: string): Promise<boolean> {
 	const rawKey = await getRawKey();
 	if (!rawKey) return false;
 
-	const internalAuthorId = await getInternalAuthorId(authorId, rawKey);
+	const internalAuthorId = await getSecureHash(authorId, rawKey);
 
 	const resp = await fetch(`/api/user/subscriptions/${internalAuthorId}`, {
 		method: 'GET',
@@ -77,7 +80,7 @@ export async function deleteUnsubscribeBackend(authorId: string) {
 	const rawKey = await getRawKey();
 	if (!rawKey) return false;
 
-	const internalAuthorId = await getInternalAuthorId(authorId, rawKey);
+	const internalAuthorId = await getSecureHash(authorId, rawKey);
 
 	await fetch(`/api/user/subscriptions/${internalAuthorId}`, {
 		method: 'DELETE',
@@ -92,7 +95,7 @@ export async function postSubscribeBackend(
 	const rawKey = await getRawKey();
 	if (!rawKey) return;
 
-	const internalAuthorId = await getInternalAuthorId(authorId, rawKey);
+	const internalAuthorId = await getSecureHash(authorId, rawKey);
 
 	if (!authorName) {
 		const channel = await getChannelYTjs(authorId);
@@ -258,6 +261,44 @@ export async function getKeyValue(key: string): Promise<KeyValue | null> {
 
 	const respJson = await resp.json();
 	return (await decryptWithMasterKey(respJson.valueNonce, respJson.valueCipher)) ?? null;
+}
+
+export async function saveHistoryToBackend(video: VideoPlay, progress: number = 0) {
+	await sodium.ready;
+	const rawKey = await getRawKey();
+	if (!rawKey) return;
+
+	const videoHash = await getSecureHash(video.videoId, rawKey);
+
+	const title = await encryptWithMasterKey(video.title);
+	const author = await encryptWithMasterKey(video.author);
+	const thumbnail = await encryptWithMasterKey(getBestThumbnail(video.videoThumbnails));
+	const duration = await encryptWithMasterKey(video.lengthSeconds.toString());
+
+	await fetch('/api/user/history', {
+		method: 'POST',
+		body: JSON.stringify({
+			id: videoHash,
+			watched: new Date(),
+			progress: progress,
+			title: {
+				cipher: title?.cipher,
+				nonce: title?.nonce
+			},
+			author: {
+				cipher: author?.cipher,
+				nonce: author?.nonce
+			},
+			thumbnail: {
+				cipher: thumbnail?.cipher,
+				nonce: thumbnail?.nonce
+			},
+			duration: {
+				cipher: duration?.cipher,
+				nonce: duration?.nonce
+			}
+		})
+	});
 }
 
 async function encryptWithMasterKey(
