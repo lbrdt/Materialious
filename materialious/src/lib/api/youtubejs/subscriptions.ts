@@ -10,7 +10,7 @@ import {
 	engineMaxConcurrentChannelsStore,
 	rawMasterKeyStore
 } from '$lib/store';
-import { getSubscriptionsBackend } from '../backend';
+import { getSubscriptionsBackend } from '../backend/subscriptions';
 
 export async function getSubscriptionsYTjs(): Promise<Subscription[]> {
 	const subscriptions: Subscription[] = [];

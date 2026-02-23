@@ -21,7 +21,6 @@ import type {
 	ReturnYTDislikes,
 	SearchSuggestion,
 	Subscription,
-	ApiExntendedProgressModel,
 	Video,
 	VideoPlay,
 	SearchOptions,
@@ -51,7 +50,7 @@ import {
 	deleteUnsubscribeBackend,
 	getSubscriptionsBackend,
 	postSubscribeBackend
-} from './backend';
+} from './backend/subscriptions';
 import { getUserLocale } from '$lib/i18n';
 
 export function buildPath(path: string): URL {

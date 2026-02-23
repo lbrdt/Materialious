@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { persistedStores } from './settings';
 
 import { isOwnBackend } from '$lib/shared';
-import { addOrUpdateKeyValue, getKeyValue } from '$lib/api/backend';
+import { addOrUpdateKeyValue, getKeyValue } from '$lib/api/backend/keyvalue';
 import { rawMasterKeyStore } from '$lib/store';
 import { getPublicEnv } from '$lib/misc';
 
