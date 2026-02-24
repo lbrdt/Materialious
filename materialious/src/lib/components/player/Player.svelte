@@ -30,6 +30,7 @@
 		playerState,
 		playertheatreModeIsActive,
 		playerYouTubeJsFallback,
+		rawMasterKeyStore,
 		sponsorBlockCategoriesStore,
 		sponsorBlockDisplayToastStore,
 		sponsorBlockStore,
@@ -751,8 +752,10 @@
 			// Continue regardless of error
 		}
 
-		const watchHistory = await getVideoWatchHistory(data.video.videoId);
-		if (watchHistory && watchHistory.progress > toSetTime) toSetTime = watchHistory.progress;
+		if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
+			const watchHistory = await getVideoWatchHistory(data.video.videoId);
+			if (watchHistory && watchHistory.progress > toSetTime) toSetTime = watchHistory.progress;
+		}
 
 		return toSetTime;
 	}
@@ -774,7 +777,9 @@
 			}
 		}
 
-		updateWatchHistory(data.video.videoId, playerElement.currentTime);
+		if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
+			updateWatchHistory(data.video.videoId, playerElement.currentTime);
+		}
 	}
 
 	onDestroy(async () => {

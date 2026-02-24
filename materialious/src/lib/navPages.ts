@@ -29,7 +29,7 @@ export function getPages(): Pages {
 		}
 	];
 
-	if (isOwnBackend() && get(rawMasterKeyStore))
+	if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore))
 		pages.push({
 			icon: 'history',
 			href: '/history',

@@ -22,12 +22,14 @@
 		isAndroidTvStore,
 		playerSavePlaybackPositionStore,
 		playerState,
+		rawMasterKeyStore,
 		syncPartyConnectionsStore,
 		syncPartyPeerStore
 	} from '$lib/store';
 	import { relativeTimestamp } from '$lib/time';
 	import { queueGetWatchHistory } from '$lib/api/backend/historyPool';
 	import { page } from '$app/state';
+	import { isOwnBackend } from '$lib/shared';
 
 	interface Props {
 		video: VideoBase | Video | Notification | PlaylistPageVideo | VideoWatchHistory;
@@ -88,7 +90,11 @@
 
 		checkIfWatched();
 
-		if (!page.url.pathname.endsWith('/history'))
+		if (
+			!page.url.pathname.endsWith('/history') &&
+			isOwnBackend()?.internalAuth &&
+			get(rawMasterKeyStore)
+		)
 			queueGetWatchHistory(video.videoId).then((watchHistory) => {
 				if (watchHistory) {
 					progress = watchHistory.progress.toString();
