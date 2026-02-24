@@ -67,7 +67,7 @@ export async function POST({ locals, request }) {
 	// Cull any history older then 3 months.
 	const threeMonthsAgo = new Date();
 	threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-	await getSequelize().UserHistoryTable.destroy({
+	getSequelize().UserHistoryTable.destroy({
 		where: {
 			UserId: locals.userId,
 			watched: {
