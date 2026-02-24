@@ -332,7 +332,7 @@
 		will-change: transform;
 		padding: 0;
 		display: block;
-		border-radius: 1rem;
+		border-radius: var(--border-radius);
 	}
 
 	.tooltip.thumb {
@@ -350,8 +350,8 @@
 		transform: translateY(-50%);
 		z-index: 1;
 		pointer-events: none;
-		border-top-right-radius: 2.5rem;
-		border-bottom-right-radius: 2.5rem;
+		border-top-right-radius: var(--player-border-radius);
+		border-bottom-right-radius: var(--player-border-radius);
 		opacity: 0.5;
 	}
 
@@ -362,7 +362,7 @@
 		left: 0;
 		height: var(--player-timeline-height);
 		background-color: var(--secondary);
-		border-radius: 2.5rem;
+		border-radius: var(--player-border-radius);
 		z-index: 2;
 		pointer-events: none;
 		opacity: 0.5;

@@ -5,6 +5,8 @@
 :root {
 	--video-player-height: 0px;
 	--safe-area-inset-top: 0px;
+	--border-radius: 0.5rem;
+	--player-border-radius: 0.25rem;
 }
 
 @font-face {
@@ -124,8 +126,9 @@ menu {
 
 button,
 .button,
-.round {
-	border-radius: 0.5rem !important;
+.round,
+menu {
+	border-radius: var(--border-radius) !important;
 }
 
 .altcha {
@@ -141,7 +144,7 @@ menu.player-settings {
 .player-slider {
 	height: var(--player-timeline-height);
 	margin: 0 auto;
-	border-radius: 2.5rem;
+	border-radius: var(--border-radius);
 }
 
 .player-slider.full-width {
@@ -156,7 +159,7 @@ menu.player-settings {
 	background: var(--secondary-container);
 	height: 100%;
 	position: relative;
-	border-radius: 2.5rem;
+	border-radius: var(--player-border-radius);
 }
 
 .player-slider .range {
@@ -164,7 +167,7 @@ menu.player-settings {
 	background: var(--inverse-primary);
 	inset: 0;
 	right: var(--percentage-inv);
-	border-radius: 2.5rem;
+	border-radius: var(--player-border-radius);
 	opacity: 0.5;
 }
 
