@@ -95,7 +95,14 @@
         "about": "Über",
         "androidNativeShare": "Nativs Teile bruche",
         "shareURL": "URL teile",
-        "joinSyncParty": "Synchronistationsgruppe-URL iigeh"
+        "joinSyncParty": "Synchronistationsgruppe-URL iigeh",
+        "engine": "Backend-Engine",
+        "materialiousAccount": "Konto",
+        "deleteAccount": "Konto lösche",
+        "clickXmoreTimesToDelete": "Klick {{clicksTillDelete}} wiiteri Mal zum Lösche",
+        "backendEngine": {
+            "warning": "Erwiterti Iistellige! Nur für erfahreni Nutzer. Ändere sie nöd, usser du weisch, was du machsch."
+        }
     },
     "videos": "Videos",
     "cancel": "Abbreche",
@@ -169,7 +176,8 @@
             "youtubeLink": "YouTube-Link kopiere",
             "invidiousRedirect": "Invidious-Wiiterleitigslink kopiere",
             "includeTimestamp": "Mit Ziitstempel",
-            "copiedSuccess": "I d Zwüscheablaag kopiert"
+            "copiedSuccess": "I d Zwüscheablaag kopiert",
+            "copyXLink": "{{linkType}}-Link kopiere"
         },
         "download": "Abelade",
         "downloadSteps": {
@@ -204,7 +212,7 @@
         }
     },
     "subscribe": "Abonniere",
-    "invidiousLogin": "Bitte meld dich mit dim Invidious-Konto aa",
+    "invidiousLogin": "Bitte meld dich mit dim Invidious-Konto aa.",
     "invalidInstance": "Bitte prüef d URL. Wenn si korrekt isch, isch d Instanz möglicherwiis usser Betriib oder unterstützt kei Clients vo Drittaabüüter.",
     "loginRequired": "Aameldig erforderlich",
     "isUpcoming": "Video isch nonig imene aaluegbare Zuestand.",
@@ -226,5 +234,32 @@
     "favouriteChannel": "Kanal favorisiere",
     "unfavouriteChannel": "Kanal entfavorisiere",
     "skip": "Überspringe",
-    "upcomingSegment": "Kommend "
+    "upcomingSegment": "Kommend ",
+    "copy": "JSON kopiere",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "captionStyle": "Untertitel-Stil",
+    "invalidPassword": "Ungültigs Passwort",
+    "usernameTaken": "Benutzername vergeh",
+    "linkInvidious": "Invidious-Konto verchnüpfe",
+    "unlinkInvidious": "Invidious-Konto entchnüpfe",
+    "createAccount": "Konto erstelle",
+    "needRegister": "Ich muess mich registriere",
+    "registrationDisabled": "Registrierig isch aktuell deaktiviert, kontaktier de Instanzinhaber.",
+    "needLogin": "Ich muess mich aamelde",
+    "materialiousLogin": "Bitte meld dich mit dim Materialious-Konto aa.",
+    "materialiousCreate": "Bite erstell dis Materialious-Konto.",
+    "backend": "Backend",
+    "initalSetup": {
+        "useInvidious": "Ich möcht Invidious nutze",
+        "useLocalFallback": "Ich möcht de lokali Video-Fallback nutze",
+        "yes": "Ja",
+        "no": "Nei",
+        "unsure": "Unsicher",
+        "required": "Iirichtig erforderlich",
+        "invidiousInfo": "Invidious isch e selbständig hostbari YouTube-Benutzeroberflächi.",
+        "localFallbackInfo": "Wenn s Lade vomene Video vo Invidious fehlschlaat, ladet Materialious es lokal.",
+        "configureInstance": "Instanz konfiguriere",
+        "done": "Fertig"
+    }
 }
