@@ -123,17 +123,11 @@
 	}}
 	role="presentation"
 >
-	<div class="field prefix fill no-margin rounded search">
+	<div class="field prefix fill no-margin search">
 		<i class="front" tabindex="-1">search</i>
-		<input
-			tabindex="0"
-			id="search-box"
-			placeholder={$_('searchPlaceholder')}
-			bind:value={search}
-			class="rounded"
-		/>
+		<input tabindex="0" id="search-box" placeholder={$_('searchPlaceholder')} bind:value={search} />
 		{#if showSearchBox}
-			<menu class="min rounded suggestions-container">
+			<menu class="min suggestions-container">
 				<div class="field large prefix suffix no-margin fixed">
 					<i class="front" role="presentation" onclick={() => dispatch('searchCancelled')}
 						>arrow_back</i
@@ -212,6 +206,10 @@
 
 	li:hover {
 		background-color: transparent;
+	}
+
+	.suggestions-container {
+		border-radius: 0 !important;
 	}
 
 	@media screen and (max-width: 1140px) {

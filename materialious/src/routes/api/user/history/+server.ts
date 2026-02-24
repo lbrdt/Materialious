@@ -41,7 +41,6 @@ export async function POST({ locals, request }) {
 	});
 
 	const toStore = {
-		progress: data.data.progress,
 		watched: data.data.watched,
 		lengthSeconds: data.data.lengthSeconds,
 		titleCipher: data.data.title.cipher,
@@ -60,6 +59,7 @@ export async function POST({ locals, request }) {
 		await getSequelize().UserHistoryTable.create({
 			UserId: locals.userId,
 			id: data.data.id,
+			progress: data.data.progress,
 			...toStore
 		});
 	}

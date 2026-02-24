@@ -51,7 +51,7 @@
 					<nav class="right-align padding">
 						<button
 							onclick={async () => await removePlaylistItem(playlist.playlistId)}
-							class="tertiary square round"
+							class="tertiary square"
 						>
 							<i>delete</i>
 						</button>
@@ -61,7 +61,7 @@
 		{/each}
 		<ContentColumn>
 			<article style="height: 100%;display: flex;align-items: center;justify-content: center;">
-				<button onclick={() => ui('#create-playlist')} class="round extra">
+				<button onclick={() => ui('#create-playlist')} class="extra">
 					<i>add_circle</i>
 					<span>{$_('playlist.createPlaylist')}</span>
 				</button>

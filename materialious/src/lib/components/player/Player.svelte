@@ -15,7 +15,6 @@
 	import { Slider } from 'melt/builders';
 	import type { VideoPlay } from '$lib/api/model';
 	import {
-		invidiousAuthStore,
 		isAndroidTvStore,
 		playerAlwaysLoopStore,
 		playerAndroidLockOrientation,
@@ -754,7 +753,7 @@
 
 		if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
 			const watchHistory = await getVideoWatchHistory(data.video.videoId);
-			if (watchHistory && watchHistory.progress > toSetTime) toSetTime = watchHistory.progress;
+			if (watchHistory) toSetTime = watchHistory.progress;
 		}
 
 		return toSetTime;
