@@ -187,6 +187,7 @@
 		"companionUrl": "Companion URL",
 		"deleteAccount": "Delete account",
 		"clickXmoreTimesToDelete": "Click {{clicksTillDelete}} more time(s) to delete",
+		"historyEnabled": "Save watch history",
 		"theme": {
 			"theme": "Theme",
 			"darkMode": "Dark mode",

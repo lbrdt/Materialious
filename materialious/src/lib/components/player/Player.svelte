@@ -13,10 +13,8 @@
 	import { _ } from '$lib/i18n';
 	import { get } from 'svelte/store';
 	import { Slider } from 'melt/builders';
-	import { deleteVideoProgress, getVideoProgress, saveVideoProgress } from '$lib/api';
 	import type { VideoPlay } from '$lib/api/model';
 	import {
-		invidiousAuthStore,
 		isAndroidTvStore,
 		playerAlwaysLoopStore,
 		playerAndroidLockOrientation,
@@ -31,12 +29,11 @@
 		playerState,
 		playertheatreModeIsActive,
 		playerYouTubeJsFallback,
+		rawMasterKeyStore,
 		sponsorBlockCategoriesStore,
 		sponsorBlockDisplayToastStore,
 		sponsorBlockStore,
-		sponsorBlockUrlStore,
-		synciousInstanceStore,
-		synciousStore
+		sponsorBlockUrlStore
 	} from '$lib/store';
 	import { setStatusBarColor } from '$lib/theme';
 	import { getVideoYTjs } from '$lib/api/youtubejs/video';
@@ -65,6 +62,7 @@
 	import { Network, type ConnectionStatus } from '@capacitor/network';
 	import { ScreenOrientation, type ScreenOrientationResult } from '@capacitor/screen-orientation';
 	import ClosedCaptions from './ClosedCaptions.svelte';
+	import { getVideoWatchHistory, updateWatchHistory } from '$lib/api/backend/history';
 
 	interface Props {
 		data: { video: VideoPlay; content: ParsedDescription; playlistId: string | null };
@@ -257,7 +255,7 @@
 				clearInterval(watchProgressInterval);
 			}
 			// Auto save watch progress every minute.
-			watchProgressInterval = setInterval(() => savePlayerPos(), 60000);
+			watchProgressInterval = setInterval(() => savePlayerbackHistory(), 60000);
 
 			let dashUrl: string;
 
@@ -284,9 +282,9 @@
 				!data.video.fallbackPatch
 			) {
 				const manifest = await manifestDomainInclusion(dashUrl);
-				await player.load(manifest, await getLastPlayPos());
+				await player.load(manifest, await getPlaybackHistory());
 			} else {
-				await player.load(dashUrl, await getLastPlayPos());
+				await player.load(dashUrl, await getPlaybackHistory());
 			}
 
 			if (data.content.timestamps) {
@@ -675,7 +673,7 @@
 		playerElement?.addEventListener('pause', async () => {
 			playerCurrentPlaybackState = false;
 			playerIsBuffering = false;
-			savePlayerPos();
+			savePlayerbackHistory();
 			showPlayerUI();
 		});
 
@@ -739,7 +737,7 @@
 		updateVideoPlayerHeight();
 	});
 
-	async function getLastPlayPos(): Promise<number> {
+	async function getPlaybackHistory(): Promise<number> {
 		if (loadTimeFromUrl($page) || !$playerSavePlaybackPositionStore) return 0;
 
 		let toSetTime = 0;
@@ -753,47 +751,33 @@
 			// Continue regardless of error
 		}
 
-		if ($synciousStore && $synciousInstanceStore && $invidiousAuthStore) {
-			try {
-				toSetTime = (await getVideoProgress(data.video.videoId))[0].time;
-			} catch {
-				// Continue regardless of error
-			}
+		if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
+			const watchHistory = await getVideoWatchHistory(data.video.videoId);
+			if (watchHistory) toSetTime = watchHistory.progress;
 		}
 
 		return toSetTime;
 	}
 
-	function savePlayerPos() {
-		if (data.video.liveNow) return;
+	function savePlayerbackHistory() {
+		if (data.video.liveNow || !$playerSavePlaybackPositionStore || !playerElement) return;
 
-		const synciousEnabled = $synciousStore && $synciousInstanceStore && $invidiousAuthStore;
-
-		if ($playerSavePlaybackPositionStore && playerElement) {
-			if (
-				playerElement.currentTime < playerElement.duration - 10 &&
-				playerElement.currentTime > 10
-			) {
-				try {
-					localStorage.setItem(`v_${data.video.videoId}`, playerElement.currentTime.toString());
-				} catch {
-					// Continue regardless of error
-				}
-
-				if (synciousEnabled) {
-					saveVideoProgress(data.video.videoId, playerElement.currentTime);
-				}
-			} else {
-				try {
-					localStorage.removeItem(`v_${data.video.videoId}`);
-				} catch {
-					// Continue regardless of error
-				}
-
-				if (synciousEnabled) {
-					deleteVideoProgress(data.video.videoId);
-				}
+		if (playerElement.currentTime < playerElement.duration - 10 && playerElement.currentTime > 10) {
+			try {
+				localStorage.setItem(`v_${data.video.videoId}`, playerElement.currentTime.toString());
+			} catch {
+				// Continue regardless of error
 			}
+		} else {
+			try {
+				localStorage.removeItem(`v_${data.video.videoId}`);
+			} catch {
+				// Continue regardless of error
+			}
+		}
+
+		if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
+			updateWatchHistory(data.video.videoId, playerElement.currentTime);
 		}
 	}
 
@@ -814,7 +798,7 @@
 		}
 
 		try {
-			savePlayerPos();
+			savePlayerbackHistory();
 		} catch {
 			// Continue regardless of error
 		}

@@ -16,7 +16,7 @@
 	import { postSubscribeYTjs } from '$lib/api/youtubejs/subscriptions';
 	import { addToast } from '../Toast.svelte';
 	import { isOwnBackend } from '$lib/shared';
-	import { postSubscribeBackend } from '$lib/api/backend';
+	import { postSubscribeBackend } from '$lib/api/backend/subscriptions';
 
 	const engineFallbacks: EngineFallback[] = [
 		'Channel',

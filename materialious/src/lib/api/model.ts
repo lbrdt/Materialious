@@ -302,15 +302,6 @@ export interface DeArrow {
 	videoDuration: number;
 }
 
-export interface ApiExntendedProgressModel {
-	time: number;
-	video_id: string;
-}
-
-export interface SynciousSaveProgressModel {
-	time: number;
-}
-
 export type SearchResults = (Channel | Video | Playlist | HashTag)[] & {
 	getContinuation?: () => Promise<SearchResults>;
 };
@@ -330,3 +321,15 @@ export type ChannelOptions = {
 	continuation?: string;
 	sortBy?: ChannelSortBy;
 };
+
+export interface VideoWatchHistory {
+	author: string;
+	watched: Date;
+	lengthSeconds: number;
+	progress: number;
+	id: string;
+	title: string;
+	thumbnail: string;
+	videoId: string;
+	type: 'historyVideo';
+}

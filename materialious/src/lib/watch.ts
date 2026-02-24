@@ -10,6 +10,7 @@ import {
 	invidiousAuthStore,
 	playerProxyVideosStore,
 	playerState,
+	rawMasterKeyStore,
 	returnYTDislikesInstanceStore,
 	returnYtDislikesStore
 } from '$lib/store';
@@ -17,6 +18,8 @@ import { parseDescription } from '$lib/description';
 import { error } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import { _ } from './i18n';
+import { isOwnBackend } from './shared';
+import { saveWatchHistory } from './api/backend/history';
 
 export async function getWatchDetails(videoId: string, url: URL) {
 	const playerStateRetrieved = get(playerState);
@@ -43,6 +46,10 @@ export async function getWatchDetails(videoId: string, url: URL) {
 		personalPlaylists = getPersonalPlaylists({ priority: 'low' });
 	} else {
 		personalPlaylists = null;
+	}
+
+	if (isOwnBackend()?.internalAuth && get(rawMasterKeyStore)) {
+		saveWatchHistory(video);
 	}
 
 	let comments;

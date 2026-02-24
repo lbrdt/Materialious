@@ -32,7 +32,7 @@ const allowedBaseDomains: string[] = [
 	'youtube.com',
 	'ytimg.com',
 	'googlevideo.com',
-	'returnyoutubedislike.com',
+	'returnyoutubedislikeapi.com',
 	'ajay.app'
 ];
 
@@ -48,7 +48,6 @@ const dynamicAllowDomainsEnvVars = [
 	env.PUBLIC_DEFAULT_INVIDIOUS_INSTANCE,
 	env.PUBLIC_DEFAULT_RETURNYTDISLIKES_INSTANCE,
 	env.PUBLIC_DEFAULT_API_EXTENDED_INSTANCE,
-	env.PUBLIC_DEFAULT_SYNCIOUS_INSTANCE,
 	env.PUBLIC_DEFAULT_COMPANION_INSTANCE
 ];
 

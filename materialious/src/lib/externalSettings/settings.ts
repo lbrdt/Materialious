@@ -30,8 +30,6 @@ import {
 	sponsorBlockDisplayToastStore,
 	sponsorBlockStore,
 	sponsorBlockUrlStore,
-	synciousInstanceStore,
-	synciousStore,
 	themeColorStore,
 	interfaceAutoExpandChapters,
 	playerDefaultPlaybackSpeed,
@@ -53,7 +51,8 @@ import {
 	playerYouTubeJsFallback,
 	playerYouTubeJsAlways,
 	interfaceSearchHistoryEnabled,
-	playerPreferredVolumeStore
+	playerPreferredVolumeStore,
+	watchHistoryEnabledStore
 } from '$lib/store';
 import { isOwnBackend } from '$lib/shared';
 
@@ -63,6 +62,7 @@ type PersistedStore<T> = {
 	schema: z.ZodType<T>;
 	serialize?: (value: T) => string;
 	excludeFromBookmarklet?: boolean; // Won't be include in bookmarklet
+	excludeFromBackendSync?: boolean;
 };
 
 const zBoolean = z.coerce.boolean();
@@ -164,16 +164,6 @@ export const persistedStores: PersistedStore<any>[] = [
 		schema: zString
 	},
 	{
-		name: 'syncious',
-		store: synciousStore,
-		schema: zBoolean
-	},
-	{
-		name: 'synciousInstance',
-		store: synciousInstanceStore,
-		schema: zString
-	},
-	{
 		name: 'region',
 		store: interfaceRegionStore,
 		schema: zString
@@ -261,7 +251,8 @@ export const persistedStores: PersistedStore<any>[] = [
 	{
 		name: 'preferredVolume',
 		store: playerPreferredVolumeStore,
-		schema: zFloat
+		schema: zFloat,
+		excludeFromBackendSync: true
 	},
 	{
 		name: 'sponsorBlockCategoriesv2',
@@ -348,6 +339,11 @@ if (isOwnBackend()) {
 	persistedStores.push({
 		name: 'youTubeJsAlways',
 		store: playerYouTubeJsAlways,
+		schema: zBoolean
+	});
+	persistedStores.push({
+		name: 'watchHistoryEnabled',
+		store: watchHistoryEnabledStore,
 		schema: zBoolean
 	});
 }

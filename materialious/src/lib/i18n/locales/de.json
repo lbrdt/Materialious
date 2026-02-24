@@ -78,7 +78,8 @@
             "invidiousRedirect": "Invidious-Weiterleitungslink kopieren",
             "youtubeLink": "YouTube-Link kopieren",
             "includeTimestamp": "Mit Zeitstempel",
-            "copiedSuccess": "In Zwischenablage kopiert"
+            "copiedSuccess": "In Zwischenablage kopiert",
+            "copyXLink": "{{linkType}}-Link kopieren"
         },
         "download": "Herunterladen",
         "downloadSteps": {
@@ -197,14 +198,21 @@
         "about": "Über",
         "androidNativeShare": "Natives Teilen nutzen",
         "joinSyncParty": "Synchronisationsgruppen-URL eingeben",
-        "shareURL": "URL teilen"
+        "shareURL": "URL teilen",
+        "engine": "Backend-Engine",
+        "materialiousAccount": "Konto",
+        "deleteAccount": "Konto löschen",
+        "clickXmoreTimesToDelete": "Klicke {{clicksTillDelete}} weitere(s) Mal(e) zum Löschen",
+        "backendEngine": {
+            "warning": "Erweiterte Einstellungen! Nur für erfahrene Nutzer. Ändere sie nicht, ausser du weisst, was du tust."
+        }
     },
     "subscribe": "Abonnieren",
     "recommendedVideos": "Vorgeschlagene Videos",
     "playlistVideos": "Wiedergabelisten Videos",
     "defaultPage": "Standardseite",
     "disabled": "Deaktiviert",
-    "invidiousLogin": "Bitte melde dich mit deinem Invidious-Konto an",
+    "invidiousLogin": "Bitte melde dich mit deinem Invidious-Konto an.",
     "invalidInstance": "Bitte prüfe die URL. Wenn sie korrekt ist, ist die Instanz möglicherweise außer Betrieb oder unterstützt keine Clients von Drittanbietern.",
     "login": "Anmeldung",
     "premium": "YouTube-Premium-Inhalte können auf Materialious nicht angeschaut werden.",
@@ -226,5 +234,32 @@
     "favouriteChannel": "Kanal favorisieren",
     "unfavouriteChannel": "Kanal entfavorisieren",
     "skip": "Überspringen",
-    "upcomingSegment": "Kommend "
+    "upcomingSegment": "Kommend ",
+    "copy": "JSON kopieren",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "captionStyle": "Untertitel-Stil",
+    "invalidPassword": "Ungültiges Passwort",
+    "usernameTaken": "Benutzername vergeben",
+    "linkInvidious": "Invidious-Konto verknüpfen",
+    "unlinkInvidious": "Invidious-Konto entknüpfen",
+    "createAccount": "Konto erstellen",
+    "needRegister": "Ich muss mich registrieren",
+    "registrationDisabled": "Registrierung aktuell deaktiviert, kontaktiere den Instanzinhaber.",
+    "needLogin": "Ich muss mich anmelden",
+    "materialiousLogin": "Bitte melde dich mit deinem Materialious-Konto an.",
+    "materialiousCreate": "Bitte erstelle dein Materialious-Konto.",
+    "backend": "Backend",
+    "initalSetup": {
+        "useInvidious": "Ich möchte Invidious nutzen",
+        "useLocalFallback": "Ich möchte den lokalen Video-Fallback nutzen",
+        "yes": "Ja",
+        "no": "Nein",
+        "unsure": "Unsicher",
+        "required": "Einrichtung erforderlich",
+        "invidiousInfo": "Invidious ist eine selbständig hostbare YouTube-Benutzeroberfläche.",
+        "localFallbackInfo": "Wenn das Laden eines Videos von Invidious fehlschlägt, lädt Materialious es lokal.",
+        "configureInstance": "Instanz konfigurieren",
+        "done": "Fertig"
+    }
 }

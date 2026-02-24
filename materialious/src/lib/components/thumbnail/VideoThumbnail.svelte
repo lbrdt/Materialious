@@ -7,26 +7,32 @@
 	import { _ } from '$lib/i18n';
 	import { get } from 'svelte/store';
 	import { getDeArrow, getThumbnail } from '$lib/api';
-	import type { Notification, PlaylistPageVideo, Video, VideoBase } from '$lib/api/model';
+	import type {
+		Notification,
+		PlaylistPageVideo,
+		Video,
+		VideoBase,
+		VideoWatchHistory
+	} from '$lib/api/model';
 	import { createVideoUrl, insecureRequestImageHandler } from '$lib/misc';
 	import type { PlayerEvents } from '$lib/player';
 	import {
-		invidiousAuthStore,
 		deArrowEnabledStore,
 		interfaceLowBandwidthMode,
 		isAndroidTvStore,
 		playerSavePlaybackPositionStore,
 		playerState,
+		rawMasterKeyStore,
 		syncPartyConnectionsStore,
-		syncPartyPeerStore,
-		synciousInstanceStore,
-		synciousStore
+		syncPartyPeerStore
 	} from '$lib/store';
-	import { queueGetWatchProgress } from '$lib/api/apiExtended';
 	import { relativeTimestamp } from '$lib/time';
+	import { queueGetWatchHistory } from '$lib/api/backend/historyPool';
+	import { page } from '$app/state';
+	import { isOwnBackend } from '$lib/shared';
 
 	interface Props {
-		video: VideoBase | Video | Notification | PlaylistPageVideo;
+		video: VideoBase | Video | Notification | PlaylistPageVideo | VideoWatchHistory;
 		playlistId?: string;
 		sideways?: boolean;
 	}
@@ -36,6 +42,8 @@
 	let placeholderHeight: number = $state(0);
 
 	let watchUrl = createVideoUrl(video.videoId, playlistId);
+
+	let beenWatched: boolean = $state(false);
 
 	syncPartyPeerStore.subscribe((peer) => {
 		if (peer) {
@@ -65,6 +73,10 @@
 		} else sideways = true;
 	}
 
+	function checkIfWatched() {
+		beenWatched = !!(progress && !page.url.pathname.endsWith('/history'));
+	}
+
 	onMount(async () => {
 		calcThumbnailPlaceholderHeight();
 
@@ -76,9 +88,24 @@
 			calcThumbnailPlaceholderHeight();
 		});
 
+		checkIfWatched();
+
+		if (
+			!page.url.pathname.endsWith('/history') &&
+			isOwnBackend()?.internalAuth &&
+			get(rawMasterKeyStore)
+		)
+			queueGetWatchHistory(video.videoId).then((watchHistory) => {
+				if (watchHistory) {
+					progress = watchHistory.progress.toString();
+					checkIfWatched();
+				}
+			});
+
 		if (get(interfaceLowBandwidthMode)) return;
 
-		let imageSrc = getBestThumbnail(video.videoThumbnails) as string;
+		let imageSrc =
+			'thumbnail' in video ? video.thumbnail : (getBestThumbnail(video.videoThumbnails) as string);
 
 		if (get(deArrowEnabledStore)) {
 			try {
@@ -107,14 +134,6 @@
 		img.onload = () => {
 			thumbnail = img;
 		};
-
-		if (get(synciousStore) && get(synciousInstanceStore) && get(invidiousAuthStore)) {
-			try {
-				progress = (await queueGetWatchProgress(video.videoId))?.time?.toString() ?? undefined;
-			} catch {
-				// Continue regardless of error
-			}
-		}
 	});
 
 	onDestroy(() => {
@@ -173,13 +192,30 @@
 			onclick={onVideoSelected}
 		>
 			{#if !$interfaceLowBandwidthMode}
-				{#if !thumbnail}
-					<div class="secondary-container" style="width: 100%;height: {placeholderHeight}px;"></div>
-				{:else}
-					<div class:crop={thumbnail.height > 300}>
-						<img class="responsive" loading="lazy" src={thumbnail.src} alt="Thumbnail for video" />
-					</div>
-				{/if}
+				<div class="thumbnail-image">
+					{#if !thumbnail}
+						<div
+							class="secondary-container"
+							style="width: 100%;height: {placeholderHeight}px;"
+						></div>
+					{:else}
+						<div class:crop={thumbnail.height > 300}>
+							<img
+								class="responsive"
+								class:watched={beenWatched}
+								loading="lazy"
+								src={thumbnail.src}
+								alt="Thumbnail for video"
+							/>
+						</div>
+					{/if}
+
+					{#if beenWatched}
+						<div class="chip surface-container-highest">
+							<i>check</i>
+						</div>
+					{/if}
+				</div>
 			{/if}
 			{#if progress}
 				<progress
@@ -225,7 +261,7 @@
 			</a>
 
 			<div>
-				{#if video.authorId}
+				{#if 'authorId' in video && video.authorId}
 					<a
 						tabindex="-1"
 						class:author={!sideways}
@@ -237,7 +273,7 @@
 					<p>{video.author}</p>
 				{/if}
 
-				{#if video.promotedBy === 'favourited'}
+				{#if 'promotedBy' in video && video.promotedBy === 'favourited'}
 					<i>star</i>
 				{/if}
 
@@ -329,6 +365,20 @@
 		justify-content: start;
 		padding: 0 1em 1em 1em;
 		line-height: 1.5;
+	}
+
+	.thumbnail-image {
+		position: relative;
+	}
+
+	.thumbnail-image .chip {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+	}
+
+	.watched {
+		filter: brightness(40%);
 	}
 
 	@media screen and (max-width: 1499px) {

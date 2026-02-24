@@ -89,7 +89,6 @@
 						class:primary={!favoritedChannel}
 						class:surface-container-highest={favoritedChannel}
 						onclick={toggleFavourited}
-						class="square"
 					>
 						<i>star</i>
 						<div class="tooltip">

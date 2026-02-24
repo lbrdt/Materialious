@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { persistedStores } from './settings';
 
 import { isOwnBackend } from '$lib/shared';
-import { addOrUpdateKeyValue, getKeyValue } from '$lib/api/backend';
+import { addOrUpdateKeyValue, getKeyValue } from '$lib/api/backend/keyvalue';
 import { rawMasterKeyStore } from '$lib/store';
 import { getPublicEnv } from '$lib/misc';
 
@@ -16,6 +16,8 @@ export async function syncSettingsToBackend() {
 
 	await Promise.all(
 		persistedStores.map(async (store) => {
+			if (store.excludeFromBackendSync) return;
+
 			getKeyValue(store.name).then((currentKeyValue) => {
 				if (currentKeyValue !== null || allowNullOverwrite.includes(store.name)) {
 					const currentKeyValueParsed = parseWithSchema(store.schema, currentKeyValue);

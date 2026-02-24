@@ -9,8 +9,7 @@ import {
 	playerYouTubeJsAlways,
 	playerYouTubeJsFallback,
 	rawMasterKeyStore,
-	returnYTDislikesInstanceStore,
-	synciousInstanceStore
+	returnYTDislikesInstanceStore
 } from '../store';
 import type {
 	ChannelPage,
@@ -22,7 +21,6 @@ import type {
 	ReturnYTDislikes,
 	SearchSuggestion,
 	Subscription,
-	ApiExntendedProgressModel,
 	Video,
 	VideoPlay,
 	SearchOptions,
@@ -52,7 +50,7 @@ import {
 	deleteUnsubscribeBackend,
 	getSubscriptionsBackend,
 	postSubscribeBackend
-} from './backend';
+} from './backend/subscriptions';
 import { getUserLocale } from '$lib/i18n';
 
 export function buildPath(path: string): URL {
@@ -596,63 +594,4 @@ export async function getThumbnail(
 		)
 	);
 	return URL.createObjectURL(await resp.blob());
-}
-
-function buildApiExtendedAuthHeaders(): Record<string, Record<string, string>> {
-	const authToken = get(invidiousAuthStore)?.token ?? '';
-	return { headers: { Authorization: `Bearer ${authToken.replace('SID=', '')}` } };
-}
-
-export async function getVideoProgress(
-	videoId: string,
-	fetchOptions: RequestInit = {}
-): Promise<ApiExntendedProgressModel[]> {
-	const resp = await fetchErrorHandle(
-		await fetch(`${get(synciousInstanceStore)}/video/${encodeURIComponent(videoId)}`, {
-			...buildApiExtendedAuthHeaders(),
-			...fetchOptions
-		})
-	);
-
-	return resp.json();
-}
-
-export async function saveVideoProgress(
-	videoId: string,
-	time: number,
-	fetchOptions: RequestInit = {}
-) {
-	const headers: Record<string, Record<string, string>> = buildApiExtendedAuthHeaders();
-	headers['headers']['Content-type'] = 'application/json';
-
-	await fetchErrorHandle(
-		await fetch(`${get(synciousInstanceStore)}/video/${encodeURIComponent(videoId)}`, {
-			...headers,
-			method: 'POST',
-			body: JSON.stringify({
-				time: time
-			}),
-			...fetchOptions
-		})
-	);
-}
-
-export async function deleteVideoProgress(videoId: string, fetchOptions: RequestInit = {}) {
-	await fetchErrorHandle(
-		await fetch(`${get(synciousInstanceStore)}/video/${videoId}`, {
-			method: 'DELETE',
-			...buildApiExtendedAuthHeaders(),
-			...fetchOptions
-		})
-	);
-}
-
-export async function deleteAllVideoProgress(fetchOptions: RequestInit = {}) {
-	await fetchErrorHandle(
-		await fetch(`${get(synciousInstanceStore)}/videos`, {
-			method: 'DELETE',
-			...buildApiExtendedAuthHeaders(),
-			...fetchOptions
-		})
-	);
 }

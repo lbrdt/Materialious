@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount, type Component } from 'svelte';
 	import { _ } from '$lib/i18n';
-	import ApiExtended from './ApiExtended.svelte';
 	import DeArrow from './DeArrow.svelte';
 	import Interface from './Interface.svelte';
 	import Player from './Player.svelte';
@@ -23,7 +22,6 @@
 		{ id: 'interface', label: $_('layout.interface'), icon: 'grid_view', component: Interface },
 		{ id: 'player', label: $_('layout.player.title'), icon: 'smart_display', component: Player },
 		{ id: 'ryd', label: 'Return YT Dislike', icon: 'thumb_down', component: Ryd },
-		{ id: 'api extended', label: 'API Extended', icon: 'sync', component: ApiExtended },
 		{ id: 'sponsorblock', label: 'Sponsorblock', icon: 'block', component: SponsorBlock },
 		{
 			id: 'dearrow',
@@ -243,6 +241,11 @@
 
 		.settings {
 			height: 100%;
+		}
+
+		#tab-menu {
+			height: fit-content !important;
+			max-height: fit-content !important;
 		}
 	}
 </style>

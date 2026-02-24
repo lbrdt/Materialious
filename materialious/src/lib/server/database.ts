@@ -5,6 +5,7 @@ let UserTable: ModelCtor<Model<any, any>>;
 let ChannelSubscriptionTable: ModelCtor<Model<any, any>>;
 let CaptchaTable: ModelCtor<Model<any, any>>;
 let UserKeyValueTable: ModelCtor<Model<any, any>>;
+let UserHistoryTable: ModelCtor<Model<any, any>>;
 
 let sequelizeInstance: Sequelize | null = null;
 
@@ -15,6 +16,7 @@ export function getSequelize(): {
 	ChannelSubscriptionTable: ModelCtor<Model<any, any>>;
 	CaptchaTable: ModelCtor<Model<any, any>>;
 	UserKeyValueTable: ModelCtor<Model<any, any>>;
+	UserHistoryTable: ModelCtor<Model<any, any>>;
 } {
 	if (sequelizeInstance) {
 		return {
@@ -22,7 +24,8 @@ export function getSequelize(): {
 			UserTable,
 			ChannelSubscriptionTable,
 			CaptchaTable,
-			UserKeyValueTable
+			UserKeyValueTable,
+			UserHistoryTable
 		};
 	}
 
@@ -107,6 +110,58 @@ export function getSequelize(): {
 		}
 	);
 
+	UserHistoryTable = sequelizeInstance.define('UserHistory', {
+		id: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			primaryKey: true
+		},
+		watched: {
+			type: DataTypes.DATE,
+			allowNull: false
+		},
+		lengthSeconds: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		},
+		progress: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		},
+		videoIdCipher: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		videoIdNonce: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		titleCipher: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		titleNonce: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		authorCipher: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		authorNonce: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		thumbnailCipher: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		thumbnailNonce: {
+			type: DataTypes.STRING,
+			allowNull: false
+		}
+	});
+
 	ChannelSubscriptionTable = sequelizeInstance.define('Subscriptions', {
 		id: {
 			type: DataTypes.STRING,
@@ -149,13 +204,15 @@ export function getSequelize(): {
 
 	UserTable.hasMany(ChannelSubscriptionTable);
 	UserTable.hasMany(UserKeyValueTable);
+	UserTable.hasMany(UserHistoryTable);
 
 	return {
 		sequelize: sequelizeInstance,
 		UserTable,
 		ChannelSubscriptionTable,
 		CaptchaTable,
-		UserKeyValueTable
+		UserKeyValueTable,
+		UserHistoryTable
 	};
 }
 

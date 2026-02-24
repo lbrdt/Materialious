@@ -41,7 +41,7 @@
 	import { page } from '$app/state';
 	import Share from '$lib/components/Share.svelte';
 	import Playlist from '$lib/components/watch/Playlist.svelte';
-	import type { PlayerEvents } from '$lib/player/index.js';
+	import type { PlayerEvents } from '$lib/player/index';
 
 	let { data = $bindable() } = $props();
 
@@ -397,10 +397,10 @@
 		<h5 class="no-margin">{letterCase(data.video.title)}</h5>
 
 		<div class="grid no-padding">
-			<div class="s12 m12 l5" style="height: 100%;display: flex;align-items: center;">
+			<div class="s12 m12 l7" style="height: 100%;display: flex;align-items: center;">
 				<Author channel={data.video} />
 			</div>
-			<div class="s12 m12 l7 video-actions">
+			<div class="s12 m12 l5 video-actions">
 				<div>
 					<LikesDislikes video={data.video} returnYTDislikes={data.streamed.returnYTDislikes} />
 
@@ -451,25 +451,25 @@
 							},
 							{
 								type: 'invidious',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							},
 							{
 								type: 'invidious redirect',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							},
 							{
 								type: 'youtube',
-								path: `/watch?=${data.video.videoId}`,
+								path: `/watch?v=${data.video.videoId}`,
 								param: {
-									key: 'v',
+									key: 't',
 									value: () => Math.round(playerCurrentTime)
 								}
 							}
@@ -695,7 +695,7 @@
 		height: 50vh;
 	}
 
-	@media screen and (max-width: 1000px) {
+	@media screen and (max-width: 1200px) {
 		.video-actions {
 			align-items: flex-start;
 			flex-direction: column;

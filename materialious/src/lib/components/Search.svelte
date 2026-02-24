@@ -123,18 +123,12 @@
 	}}
 	role="presentation"
 >
-	<div class="field prefix fill no-margin rounded search">
+	<div class="field prefix fill no-margin search round">
 		<i class="front" tabindex="-1">search</i>
-		<input
-			tabindex="0"
-			id="search-box"
-			placeholder={$_('searchPlaceholder')}
-			bind:value={search}
-			class="rounded"
-		/>
+		<input tabindex="0" id="search-box" placeholder={$_('searchPlaceholder')} bind:value={search} />
 		{#if showSearchBox}
-			<menu class="min rounded suggestions-container">
-				<div class="field large prefix suffix no-margin fixed">
+			<menu class="min suggestions-container fill">
+				<div class="field large prefix fill suffix no-margin fixed round">
 					<i class="front" role="presentation" onclick={() => dispatch('searchCancelled')}
 						>arrow_back</i
 					>

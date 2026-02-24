@@ -192,7 +192,7 @@
 				onclick={async () => {
 					await shareURL(`${syncOrigin}${resolve(`/?sync=${createShareBase64()}`, {})}`);
 				}}
-				class="square round"
+				class="round"
 			>
 				<i>content_copy</i>
 			</button>

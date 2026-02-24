@@ -1,5 +1,5 @@
-import { persistedStoreKeys } from '$lib/externalSettings/settings.js';
-import { getUser } from '$lib/server/user.js';
+import { persistedStoreKeys } from '$lib/externalSettings/settings';
+import { getUser } from '$lib/server/user';
 import { error, json } from '@sveltejs/kit';
 import z from 'zod';
 
