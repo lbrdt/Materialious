@@ -329,6 +329,12 @@ export const rawMasterKeyStore: Writable<string | undefined> = persist(
 	'rawMasterKey'
 );
 
+export const watchHistoryEnabledStore: Writable<boolean> = persist(
+	writable(true),
+	createStorage(),
+	'watchHistoryEnabled'
+);
+
 export const syncPartyPeerStore: Writable<Peer | null> = writable(null);
 export const syncPartyConnectionsStore: Writable<DataConnection[] | null> = writable();
 

@@ -51,7 +51,8 @@ import {
 	playerYouTubeJsFallback,
 	playerYouTubeJsAlways,
 	interfaceSearchHistoryEnabled,
-	playerPreferredVolumeStore
+	playerPreferredVolumeStore,
+	watchHistoryEnabledStore
 } from '$lib/store';
 import { isOwnBackend } from '$lib/shared';
 
@@ -336,6 +337,11 @@ if (isOwnBackend()) {
 	persistedStores.push({
 		name: 'youTubeJsAlways',
 		store: playerYouTubeJsAlways,
+		schema: zBoolean
+	});
+	persistedStores.push({
+		name: 'watchHistoryEnabled',
+		store: watchHistoryEnabledStore,
 		schema: zBoolean
 	});
 }
