@@ -18,6 +18,7 @@
 # Features
 - Internal account system (Optional).
   * Subscriptions are end-to-end encrypted.
+  * History & watch progress syncing.
   * [Proof-of-work Captcha](https://github.com/altcha-org/altcha).
 - Subscription importing/exporting
   * Automatically import/export Invidious/Materialious.
@@ -25,7 +26,6 @@
   * Enjoy Materialious without a Invidious instance via our YouTube backend.
   * Local video fallback if Invidious fails loading videos.
 - Invidious companion support.
-- [Invidious API extended integration.](https://github.com/Materialious/api-extended)
 - Android TV support.
 - Support for disabling certificate validation for homelab users.
 - Sync your watch progress between Invidious sessions.
