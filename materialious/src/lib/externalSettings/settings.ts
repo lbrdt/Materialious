@@ -62,6 +62,7 @@ type PersistedStore<T> = {
 	schema: z.ZodType<T>;
 	serialize?: (value: T) => string;
 	excludeFromBookmarklet?: boolean; // Won't be include in bookmarklet
+	excludeFromBackendSync?: boolean;
 };
 
 const zBoolean = z.coerce.boolean();
@@ -250,7 +251,8 @@ export const persistedStores: PersistedStore<any>[] = [
 	{
 		name: 'preferredVolume',
 		store: playerPreferredVolumeStore,
-		schema: zFloat
+		schema: zFloat,
+		excludeFromBackendSync: true
 	},
 	{
 		name: 'sponsorBlockCategoriesv2',

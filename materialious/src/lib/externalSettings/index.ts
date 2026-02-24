@@ -16,6 +16,8 @@ export async function syncSettingsToBackend() {
 
 	await Promise.all(
 		persistedStores.map(async (store) => {
+			if (store.excludeFromBackendSync) return;
+
 			getKeyValue(store.name).then((currentKeyValue) => {
 				if (currentKeyValue !== null || allowNullOverwrite.includes(store.name)) {
 					const currentKeyValueParsed = parseWithSchema(store.schema, currentKeyValue);
