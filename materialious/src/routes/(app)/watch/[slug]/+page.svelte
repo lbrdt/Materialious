@@ -397,10 +397,10 @@
 		<h5 class="no-margin">{letterCase(data.video.title)}</h5>
 
 		<div class="grid no-padding">
-			<div class="s12 m12 l5" style="height: 100%;display: flex;align-items: center;">
+			<div class="s12 m12 l7" style="height: 100%;display: flex;align-items: center;">
 				<Author channel={data.video} />
 			</div>
-			<div class="s12 m12 l7 video-actions">
+			<div class="s12 m12 l5 video-actions">
 				<div>
 					<LikesDislikes video={data.video} returnYTDislikes={data.streamed.returnYTDislikes} />
 
@@ -695,7 +695,7 @@
 		height: 50vh;
 	}
 
-	@media screen and (max-width: 1000px) {
+	@media screen and (max-width: 1200px) {
 		.video-actions {
 			align-items: flex-start;
 			flex-direction: column;

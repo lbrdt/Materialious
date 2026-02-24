@@ -32,7 +32,7 @@ const allowedBaseDomains: string[] = [
 	'youtube.com',
 	'ytimg.com',
 	'googlevideo.com',
-	'returnyoutubedislike.com',
+	'returnyoutubedislikeapi.com',
 	'ajay.app'
 ];
 
