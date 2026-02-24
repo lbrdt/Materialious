@@ -37,11 +37,6 @@ article {
 	border: 0.5px solid var(--primary);
 }
 
-button,
-.button {
-	border-radius: 0.5rem !important;
-}
-
 .thumbnail-corner {
 	padding: 0.1em 0.4em;
 }
@@ -122,11 +117,15 @@ menu {
 }
 
 .tooltip {
-	background-color: var(--surface) !important;
-	border: 0.1px solid var(--primary) !important;
+	background-color: var(--surface-container-highest) !important;
 	box-shadow: none !important;
-	border-radius: 0.25rem !important;
 	color: var(--on-surface) !important;
+}
+
+button,
+.button,
+.round {
+	border-radius: 0.5rem !important;
 }
 
 .altcha {
@@ -142,7 +141,7 @@ menu.player-settings {
 .player-slider {
 	height: var(--player-timeline-height);
 	margin: 0 auto;
-	border-radius: 0.25rem;
+	border-radius: 2.5rem;
 }
 
 .player-slider.full-width {
@@ -157,7 +156,7 @@ menu.player-settings {
 	background: var(--secondary-container);
 	height: 100%;
 	position: relative;
-	border-radius: 0.25rem;
+	border-radius: 2.5rem;
 }
 
 .player-slider .range {
@@ -165,7 +164,7 @@ menu.player-settings {
 	background: var(--inverse-primary);
 	inset: 0;
 	right: var(--percentage-inv);
-	border-radius: 0.25rem;
+	border-radius: 2.5rem;
 	opacity: 0.5;
 }
 

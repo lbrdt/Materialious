@@ -51,7 +51,7 @@
 					<nav class="right-align padding">
 						<button
 							onclick={async () => await removePlaylistItem(playlist.playlistId)}
-							class="tertiary square"
+							class="tertiary"
 						>
 							<i>delete</i>
 						</button>

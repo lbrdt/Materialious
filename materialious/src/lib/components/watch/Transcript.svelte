@@ -96,7 +96,7 @@
 		</div>
 		{#if transcriptCues.length > 0}
 			<div class="space"></div>
-			<div class="max field suffix prefix small no-margin surface-container-highest">
+			<div class="max field suffix prefix small round no-margin surface-container-highest">
 				<i class="front">search</i><input
 					bind:value={search}
 					oninput={searchTranscript}

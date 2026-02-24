@@ -167,7 +167,7 @@
 						>
 					{/if}
 				</div>
-				<button class="square">
+				<button>
 					<i>done</i>
 				</button>
 			</nav>

@@ -55,7 +55,8 @@
 						</h6></a
 					>
 					<div class="max"></div>
-					<button onclick={async () => unsubscribe(sub.authorId)} class="border">Unsubscribe</button
+					<button onclick={async () => unsubscribe(sub.authorId)} class="surface-container-highest"
+						>Unsubscribe</button
 					>
 				</nav>
 			</article>
