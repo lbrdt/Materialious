@@ -1,4 +1,4 @@
-import { getSequelize } from '$lib/server/database.js';
+import { getSequelize } from '$lib/server/database';
 import { error, json } from '@sveltejs/kit';
 import z from 'zod';
 

@@ -73,7 +73,7 @@ export async function getVideoWatchHistory(
 }
 
 export async function getWatchHistory(
-	options: { page?: number; videoIds?: string[] } = { page: 0, videoIds: undefined }
+	options: { page?: number; videoIds?: string[] } = { page: undefined, videoIds: undefined }
 ): Promise<VideoWatchHistory[]> {
 	await sodium.ready;
 	const rawKey = await getRawKey();
@@ -86,9 +86,17 @@ export async function getWatchHistory(
 		}
 	}
 
-	const resp = await fetch(
-		`/api/user/history?page=${options.page}${videoHashes.length > 0 ? '&videoHashes=' + videoHashes.join(',') : ''}`
-	);
+	const params = new URLSearchParams();
+
+	if (options.page) {
+		params.set('page', options.page.toString());
+	}
+
+	if (options.videoIds && options.videoIds.length > 0) {
+		params.set('videoHashes', videoHashes.join(','));
+	}
+
+	const resp = await fetch(`/api/user/history?${params.toString()}`);
 	if (!resp.ok) return [];
 
 	const rawHistory = await resp.json();
@@ -100,6 +108,10 @@ export async function getWatchHistory(
 	}
 
 	return history;
+}
+
+export async function deleteWatchHistory() {
+	await fetch('/api/user/history', { method: 'DELETE' });
 }
 
 export async function saveWatchHistory(video: VideoPlay, progress: number = 0) {

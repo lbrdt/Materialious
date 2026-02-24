@@ -41,6 +41,8 @@
 
 	let watchUrl = createVideoUrl(video.videoId, playlistId);
 
+	let beenWatched: boolean = $state(false);
+
 	syncPartyPeerStore.subscribe((peer) => {
 		if (peer) {
 			watchUrl.searchParams.set('sync', peer.id);
@@ -69,6 +71,10 @@
 		} else sideways = true;
 	}
 
+	function checkIfWatched() {
+		beenWatched = !!(progress && !page.url.pathname.endsWith('/history'));
+	}
+
 	onMount(async () => {
 		calcThumbnailPlaceholderHeight();
 
@@ -80,11 +86,15 @@
 			calcThumbnailPlaceholderHeight();
 		});
 
-		queueGetWatchHistory(video.videoId).then((watchHistory) => {
-			if (watchHistory) {
-				progress = watchHistory.progress.toString();
-			}
-		});
+		checkIfWatched();
+
+		if (!page.url.pathname.endsWith('/history'))
+			queueGetWatchHistory(video.videoId).then((watchHistory) => {
+				if (watchHistory) {
+					progress = watchHistory.progress.toString();
+					checkIfWatched();
+				}
+			});
 
 		if (get(interfaceLowBandwidthMode)) return;
 
@@ -176,8 +186,6 @@
 			onclick={onVideoSelected}
 		>
 			{#if !$interfaceLowBandwidthMode}
-				{@const beenWatched = progress && !page.url.pathname.endsWith('/history')}
-
 				<div class="thumbnail-image">
 					{#if !thumbnail}
 						<div
